@@ -4,8 +4,8 @@
 
 **Đội trưởng:** Nguyễn Đức Danh — 2A202602722. Liên hệ: [TEAMMATES.md](TEAMMATES.md).
 
-**Trạng thái:** Canvas CP1 (16/09/2026). Đã chốt Track B1, lát cắt, phân công và 2 người thử; evidence chuẩn B (mining)
-và chuẩn A (khảo sát n=20) đã có; quality bar chốt tại CP4.
+**Trạng thái:** CP2 (16/09/2026). Canvas CP1 đã chốt (Track B1, evidence chuẩn A + B, 2 người thử); đã có mock bấm được
+4 nhánh trong `codebase/`, §3–§6. Chưa có lời gọi AI thật, golden set và quality bar (CP3–CP4).
 
 *Commit trước hạn chốt spec: 21:00 17/9, tại CP4 · quality bar chốt từ thời điểm nộp.*
 
@@ -122,61 +122,94 @@ nên gộp làm nhánh trải nghiệm.
 
 ## §3. Giải pháp tương tự đã nghiên cứu
 
-- [Sản phẩm 1]: flow / đáng học / đáng né / mình khác gì
--
-
-[Sản phẩm 2]: ...
+| Sản phẩm                                                                      | Flow giải job                                                                        | Đáng học                                                                       | Đáng né                                                                                                                                                                                                                      | Mình khác gì                                                                                                                               |
+|-------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| **Bot "Trợ lý" Discord K4 đang chạy** (baseline, quan sát qua `discord-pack`) | Học viên tag @BOT hỏi tự do → bot trả lời đoạn văn                                   | Có sẵn trong kênh học viên đang dùng; 21/28 câu hỏi nộp bài đi thẳng vào bot   | Trả lời không kèm nguồn kiểm tra được; học viên phải hỏi lại hoặc trích lời bot để hỏi tiếp (M58536, M76564, M15491, M60145); thông tin mâu thuẫn với hệ thống (M82163 "ghi là hết hôm nay nhưng nộp bài thì m kêu hết hạn") | Chỉ trả lời khi có thông báo chính thức, luôn kèm trích dẫn + thời điểm đăng; dùng bản mới nhất khi có cập nhật; không có nguồn thì nói rõ |
+| **NotebookLM (Google)**                                                       | Người dùng nạp tài liệu → hỏi → trả lời kèm số trích dẫn bấm được mở đúng đoạn nguồn | Trích dẫn nằm ngay cạnh câu trả lời, bấm mở đoạn gốc → người dùng tự kiểm được | Trả lời dài, tổng hợp nhiều nguồn cùng lúc; không phân biệt nguồn cũ/mới khi hai tài liệu mâu thuẫn                                                                                                                          | Đầu ra cố định 3 trường (nơi / cách / hạn) thay vì đoạn văn; ưu tiên thông báo mới nhất và cảnh báo bản bị thay thế                        |
+| **Tin ghim + tìm kiếm Discord** (cách học viên đang tự làm)                   | Mở tin ghim / gõ từ khoá vào ô tìm kiếm → cuộn đọc                                   | Nguồn gốc chính chủ, không qua diễn giải                                       | Khảo sát: 6/20 gặp "nhiều thông tin khác nhau, không biết cái nào áp dụng", 3/20 "không tìm thấy thông báo/đường dẫn"                                                                                                        | Trả thẳng đoạn thông báo khớp hạng mục thay vì danh sách kết quả tìm kiếm                                                                  |
 
 ## §4. Thiết kế
 
-- Lát cắt MỘT CÂU: xem Canvas ô 3 ở §2.
-- Non-goals (≥3 thứ KHÔNG build): không tra điểm/điểm danh/XP cá nhân; không tự nộp bài hay gia hạn thay học viên; không
-  giải đáp kiến thức bài học; không tự tag/gửi tin cho TA.
-- Mức prototype nhắm tới: [ ] Sketch [ ] Mock [ ] Working — phần nào mock, phần nào thật:
-- Automation: [ ] augment [x] conditional [ ] automate — lý do theo cost-of-error: xem Canvas ô 4.
-- §4b. Nguyên tắc đã áp dụng (≥4 — HAX/PAIR, xem guide):
-  | Nguyên tắc | Áp cụ thể vào đâu trong prototype |
-  |---|---|
+- **Lát cắt MỘT CÂU:** xem Canvas ô 3 ở §2.
+- **Non-goals (KHÔNG build):**
+    1. Không tra điểm, điểm danh, XP cá nhân.
+    2. Không tự nộp bài, không gia hạn hay xin ngoại lệ thay học viên.
+    3. Không giải đáp kiến thức bài học / lỗi code.
+    4. Không tự tag hay gửi tin cho TA — chỉ soạn sẵn để học viên tự gửi.
+    5. Không tích hợp bot Discord thật trong hackathon — giao diện Discord là giả lập.
+- **Mức prototype:** CP2 = **Mock** (`codebase/mock/index.html`, quyết định bằng luật từ khoá). CP3 nhắm **Working**: thay
+  hàm `decide()` bằng lời gọi LLM thật + trace log trong `codebase/logs/`.
 
-## §5. Kiểu lỗi — 4 lớp chỗ khó + kịch bản (≥8) [bảng theo guide §2.5]
-| Lớp chỗ khó | Cụ thể trong lát cắt | Vì sao nguy hiểm |
-|---|---|---|
-| ① Nguồn sự thật | AI tự bịa hạn/nơi nộp khi không có thông báo, hoặc lấy lời bot/học viên khác làm nguồn | Học viên tin và nộp sai → mất XP/điểm danh |
-| ② Mơ hồ / thiếu thông tin | Câu hỏi không nói hạng mục ("hạn nộp bài?"), không nói lab số mấy, hoặc gộp nhiều hạng mục | Trả lời nhầm hạng mục có hạn khác nhau |
-| ③ Ngoài phạm vi / thẩm quyền | Đòi gia hạn, nộp hộ, xem điểm danh/XP cá nhân, hỏi kiến thức bài học | Hứa hẹn thay BTC hoặc lộ dữ liệu cá nhân |
-| ④ Đặc thù domain | Thông báo cập nhật đổi khung giờ (TB-01 → TB-02); ai nộp (từng người vs đội trưởng); giờ VN; hạn "ngày hôm sau" | Đúng nguồn nhưng dùng bản cũ hoặc sai người nộp vẫn mất điểm |
+| Thành phần                                                         | Mock hay thật                                                              |
+|--------------------------------------------------------------------|----------------------------------------------------------------------------|
+| Giao diện chat kiểu Discord                                        | Mock HTML (giữ đến demo)                                                   |
+| Quyết định FOUND / CLARIFY / NOT_FOUND / OUT_OF_SCOPE + chọn nguồn | CP2 mock luật → **CP3 LLM thật**                                           |
+| Kho thông báo chính thức                                           | Giả lập: 5 thông báo nhóm tự soạn trong `codebase/data/announcements.json` |
+| Hiển thị nơi / cách / hạn nộp                                      | Lấy nguyên từ nguồn đã chọn, model không tự viết lại                       |
+| Kết nối Discord, gửi tin TA                                        | Không làm (non-goal)                                                       |
 
-| # | Lớp | Tình huống cụ thể (input học viên) | Hành vi mong muốn (nói gì · hiện gì · cho làm gì tiếp) | Nhánh | Nguyên tắc áp |
-|---|---|---|---|---|---|
-| K1 | ① | "Lab 7 nộp ở đâu vậy?" (chưa có thông báo lab 7) | Nói rõ chưa có thông báo chính thức, không đưa hạn, nút soạn câu hỏi gửi TA | NOT_FOUND | G10, G11 |
-| K2 | ① | "Bot hôm qua bảo standup hạn 23:59, đúng không?" | Không xác nhận theo lời bot; trả theo thông báo mới nhất TB-02 (22:00) kèm trích dẫn | FOUND + cảnh báo | G11, G2 |
-| K3 | ② | "Cho mình hỏi hạn nộp bài là khi nào?" | Hỏi lại hạng mục bằng nút chọn nhanh, không đoán | CLARIFY | G10 |
-| K4 | ② | "Lab nộp như nào?" | Hỏi lại lab số mấy | CLARIFY | G10 |
-| K5 | ③ | "Mình nộp lab 2 muộn 1 phút, gia hạn giúp mình được không?" | Từ chối gia hạn, nêu phạm vi, soạn sẵn tin để học viên tự gửi TA/BTC; gợi ý tra quy định nộp lab 2 | OUT_OF_SCOPE | G1, G10 |
-| K6 | ③ | "Check giúp mình đã được điểm danh chưa" | Từ chối: không truy cập dữ liệu cá nhân; hướng dẫn hỏi TA | OUT_OF_SCOPE | G1 |
-| K7 | ④ | "Nộp daily standup ở đâu, hạn khi nào?" | Dùng TB-02 (mới nhất), cảnh báo TB-01 đã bị thay thế | FOUND | G11, G2 |
-| K8 | ④ | "Đề tài nhóm thì cả nhóm có phải nộp không?" | Trả theo TB-04: chỉ đội trưởng nộp 1 lần, kèm hạn và trích dẫn | FOUND | G11 |
-| K9 | ④ | "Mentor duty hôm nay trực thì hạn nộp log khi nào?" | Trả "12:00 trưa ngày hôm sau" đúng nguồn TB-05, không đổi thành 23:59 hôm nay | FOUND | G11 |
+- **Automation:** [ ] augment [x] conditional [ ] automate — tự trả lời khi có nguồn khớp; hỏi lại khi thiếu hạng mục/số
+  lab; từ chối + hướng dẫn hỏi TA khi không có nguồn hoặc ngoài thẩm quyền. Lý do theo cost-of-error: trả sai hạn/nơi
+  nộp khiến học viên mất XP/điểm danh và không sửa lại được sau khi quá hạn (M21463, M88027), trong khi hỏi lại chỉ tốn
+  thêm 1 lượt bấm → chọn hỏi lại/từ chối thay vì đoán. Chưa chọn automate vì thông báo có thể thay đổi (TB-01 → TB-02).
+- **Ba câu PAIR 1.3:** AI **luôn phải** kèm trích dẫn thông báo chính thức khi đưa hạn/nơi nộp · AI **không được** tự
+  bịa hạn nộp hoặc hứa gia hạn, kể cả khi học viên nài · Nếu AI không chắc, học viên **không phiền** bấm chọn lại hạng
+  mục, miễn là chỉ mất 1 lượt bấm.
 
-**Kịch bản nhóm sợ nhất khi demo:** K2 — học viên dẫn lời bot cũ "hạn 23:59" và AI xác nhận theo, trong khi thông báo mới là 22:00 → học viên nộp lúc 22:30 bị chặn, mất XP. Đây chính là lỗi thật trong data (M82163). Tiếp theo là K5 — AI mềm lòng hứa "sẽ báo TA gia hạn".
+### §4b. Nguyên tắc HAX đã áp dụng
+
+| Nguyên tắc                                          | Áp cụ thể vào đâu trong prototype (`codebase/mock/index.html`)                                                                               |
+|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| **G1 — Làm rõ hệ thống làm được gì**                | Tin chào đầu tiên của bot: nêu đúng 3 việc (nơi · cách · hạn nộp), 4 hạng mục hỗ trợ và những việc **không** làm (xem điểm, gia hạn, nộp hộ) |
+| **G2 — Làm rõ làm tốt đến đâu**                     | Tin chào ghi "chỉ dựa trên thông báo chính thức"; mỗi thẻ FOUND hiện thời điểm đăng + kênh nguồn để học viên biết độ mới                     |
+| **G10 — Thu hẹp phạm vi khi nghi ngờ** *(bắt buộc)* | Nhánh CLARIFY: câu "hạn nộp bài khi nào?" không đoán mà hỏi lại hạng mục bằng nút chọn nhanh; hỏi "lab" không số → hiện nút Lab 1…7          |
+| **G11 — Giải thích vì sao**                         | Khối trích dẫn dưới mỗi câu trả lời: nguyên văn thông báo + mã TB + nút "Mở thông báo gốc"; cảnh báo vàng khi dùng TB-02 thay TB-01          |
+| **G9 — Sửa dễ dàng**                                | Nút "✏️ Không phải cái tôi hỏi" trên mỗi câu trả lời → chọn lại hạng mục → trả lời lại ngay                                                  |
+| **G15 — Mời feedback chi tiết**                     | Nút 👍 / 👎; bấm 👎 hiện lựa chọn "Sai hạn nộp · Sai nơi nộp · Nguồn cũ · Khác"                                                              |
+
+## §5. Kiểu lỗi — 4 lớp chỗ khó + kịch bản
+
+| Lớp chỗ khó                  | Cụ thể trong lát cắt                                                                                            | Vì sao nguy hiểm                                             |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| ① Nguồn sự thật              | AI tự bịa hạn/nơi nộp khi không có thông báo, hoặc lấy lời bot/học viên khác làm nguồn                          | Học viên tin và nộp sai → mất XP/điểm danh                   |
+| ② Mơ hồ / thiếu thông tin    | Câu hỏi không nói hạng mục ("hạn nộp bài?"), không nói lab số mấy, hoặc gộp nhiều hạng mục                      | Trả lời nhầm hạng mục có hạn khác nhau                       |
+| ③ Ngoài phạm vi / thẩm quyền | Đòi gia hạn, nộp hộ, xem điểm danh/XP cá nhân, hỏi kiến thức bài học                                            | Hứa hẹn thay BTC hoặc lộ dữ liệu cá nhân                     |
+| ④ Đặc thù domain             | Thông báo cập nhật đổi khung giờ (TB-01 → TB-02); ai nộp (từng người vs đội trưởng); giờ VN; hạn "ngày hôm sau" | Đúng nguồn nhưng dùng bản cũ hoặc sai người nộp vẫn mất điểm |
+
+| #  | Lớp | Tình huống cụ thể (input học viên)                          | Hành vi mong muốn (nói gì · hiện gì · cho làm gì tiếp)                                             | Nhánh            | Nguyên tắc áp |
+|----|-----|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|------------------|---------------|
+| K1 | ①   | "Lab 7 nộp ở đâu vậy?" (chưa có thông báo lab 7)            | Nói rõ chưa có thông báo chính thức, không đưa hạn, nút soạn câu hỏi gửi TA                        | NOT_FOUND        | G10, G11      |
+| K2 | ①   | "Bot hôm qua bảo standup hạn 23:59, đúng không?"            | Không xác nhận theo lời bot; trả theo thông báo mới nhất TB-02 (22:00) kèm trích dẫn               | FOUND + cảnh báo | G11, G2       |
+| K3 | ②   | "Cho mình hỏi hạn nộp bài là khi nào?"                      | Hỏi lại hạng mục bằng nút chọn nhanh, không đoán                                                   | CLARIFY          | G10           |
+| K4 | ②   | "Lab nộp như nào?"                                          | Hỏi lại lab số mấy                                                                                 | CLARIFY          | G10           |
+| K5 | ③   | "Mình nộp lab 2 muộn 1 phút, gia hạn giúp mình được không?" | Từ chối gia hạn, nêu phạm vi, soạn sẵn tin để học viên tự gửi TA/BTC; gợi ý tra quy định nộp lab 2 | OUT_OF_SCOPE     | G1, G10       |
+| K6 | ③   | "Check giúp mình đã được điểm danh chưa"                    | Từ chối: không truy cập dữ liệu cá nhân; hướng dẫn hỏi TA                                          | OUT_OF_SCOPE     | G1            |
+| K7 | ④   | "Nộp daily standup ở đâu, hạn khi nào?"                     | Dùng TB-02 (mới nhất), cảnh báo TB-01 đã bị thay thế                                               | FOUND            | G11, G2       |
+| K8 | ④   | "Đề tài nhóm thì cả nhóm có phải nộp không?"                | Trả theo TB-04: chỉ đội trưởng nộp 1 lần, kèm hạn và trích dẫn                                     | FOUND            | G11           |
+| K9 | ④   | "Mentor duty hôm nay trực thì hạn nộp log khi nào?"         | Trả "12:00 trưa ngày hôm sau" đúng nguồn TB-05, không đổi thành 23:59 hôm nay                      | FOUND            | G11           |
+
+**Kịch bản nhóm sợ nhất khi demo:** K2 — học viên dẫn lời bot cũ "hạn 23:59" và AI xác nhận theo, trong khi thông báo
+mới là 22:00 → học viên nộp lúc 22:30 bị chặn, mất XP. Đây chính là lỗi thật trong data (M82163). Tiếp theo là K5 — AI
+mềm lòng hứa "sẽ báo TA gia hạn".
 
 Các kịch bản K1–K9 sẽ vào golden set (`eval/`) ở CP3; mỗi lớp ≥2 case.
 
 ## §6. Bốn đường đi của trải nghiệm
 
-ơ đồ luồng: [codebase/flow.md](codebase/flow.md). Tất cả nhánh bấm thử được trong `codebase/mock/index.html` (nút "Kịch bản demo").
+Sơ đồ luồng: [codebase/flow.md](codebase/flow.md). Tất cả nhánh bấm thử được trong `codebase/mock/index.html` (nút "Kịch
+bản demo").
 
-| Đường đi | Khi nào | Học viên thấy gì | Làm gì tiếp |
-|---|---|---|---|
-| **Happy (FOUND)** | Có thông báo chính thức khớp hạng mục | Thẻ 3 trường Nơi nộp · Cách nộp · Hạn nộp + Lưu ý hậu quả + trích dẫn nguyên văn (mã TB, kênh, thời điểm) | Đi nộp; 👍/👎 hoặc sửa |
-| **Low-confidence (CLARIFY, ②)** | Thiếu hạng mục hoặc số lab | 1 câu hỏi lại + nút chọn nhanh (Daily standup / Bài lab / Đề tài / Mentor duty; Lab 1…7) | Bấm 1 nút → bot trả lời lại |
-| **Failure / không căn cứ (NOT_FOUND, ①)** | Không có thông báo chính thức khớp | "Chưa tìm thấy thông báo chính thức… không đưa ra hạn để tránh nộp sai" | Nút "Soạn câu hỏi gửi TA" (học viên tự copy gửi) hoặc hỏi hạng mục khác |
-| **Correction (user sửa)** | Học viên thấy câu trả lời sai hạng mục/sai ý | Nút "✏️ Không phải cái tôi hỏi" → chọn lại hạng mục; 👎 → chọn "sai chỗ nào" | Bot trả lời lại theo lựa chọn mới; phản hồi được ghi nhận |
+| Đường đi                                  | Khi nào                                      | Học viên thấy gì                                                                                          | Làm gì tiếp                                                             |
+|-------------------------------------------|----------------------------------------------|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| **Happy (FOUND)**                         | Có thông báo chính thức khớp hạng mục        | Thẻ 3 trường Nơi nộp · Cách nộp · Hạn nộp + Lưu ý hậu quả + trích dẫn nguyên văn (mã TB, kênh, thời điểm) | Đi nộp; 👍/👎 hoặc sửa                                                  |
+| **Low-confidence (CLARIFY, ②)**           | Thiếu hạng mục hoặc số lab                   | 1 câu hỏi lại + nút chọn nhanh (Daily standup / Bài lab / Đề tài / Mentor duty; Lab 1…7)                  | Bấm 1 nút → bot trả lời lại                                             |
+| **Failure / không căn cứ (NOT_FOUND, ①)** | Không có thông báo chính thức khớp           | "Chưa tìm thấy thông báo chính thức… không đưa ra hạn để tránh nộp sai"                                   | Nút "Soạn câu hỏi gửi TA" (học viên tự copy gửi) hoặc hỏi hạng mục khác |
+| **Correction (user sửa)**                 | Học viên thấy câu trả lời sai hạng mục/sai ý | Nút "✏️ Không phải cái tôi hỏi" → chọn lại hạng mục; 👎 → chọn "sai chỗ nào"                              | Bot trả lời lại theo lựa chọn mới; phản hồi được ghi nhận               |
 
-- **Khi bị đòi ngoài phạm vi (③):** nhãn OUT_OF_SCOPE, nêu rõ trợ lý chỉ tra nơi/cách/hạn nộp; không gia hạn, không nộp hộ, không
-  xem điểm cá nhân; nút soạn tin gửi TA/BTC và nút "Tra quy định nộp thay vào đó".
-- **Case đặc thù domain (④):** khi nhiều thông báo cùng hạng mục, luôn dùng bản `published` mới nhất và hiện cảnh báo vàng nêu
-  mã thông báo bị thay thế; hiển thị rõ ai phải nộp (từng thành viên vs đội trưởng) lấy từ nguồn.
+- **Khi bị đòi ngoài phạm vi (③):** nhãn OUT_OF_SCOPE, nêu rõ trợ lý chỉ tra nơi/cách/hạn nộp; không gia hạn, không nộp
+  hộ, không xem điểm cá nhân; nút soạn tin gửi TA/BTC và nút "Tra quy định nộp thay vào đó".
+- **Case đặc thù domain (④):** khi nhiều thông báo cùng hạng mục, luôn dùng bản `published` mới nhất và hiện cảnh báo
+  vàng nêu mã thông báo bị thay thế; hiển thị rõ ai phải nộp (từng thành viên vs đội trưởng) lấy từ nguồn.
 
 ## §7. Kiểm thử
 
@@ -196,16 +229,17 @@ Các kịch bản K1–K9 sẽ vào golden set (`eval/`) ở CP3; mỗi lớp �
 
 Cả 4 người tự viết `reflection/<MSHV>_<Ten>.md` và phải giải thích được phần có tên mình khi pitch.
 
-- Willing users: **Đinh Công Tú**, **Đỗ Phúc Hưng** (học viên AI20k K4, ngoài nhóm) — đã đồng ý thử. Kế hoạch validation:
-  sáng 18/9 thử prototype với 2 người này và ≥3 người ngoài nhóm khác; giao task "tìm cách/nơi/hạn nộp daily standup
-  hoặc lab", quan sát im lặng, ghi điểm vướng và quote nguyên văn vào `validation/user_testing_log.md`.
+- Willing users: **Đinh Công Tú**, **Đỗ Phúc Hưng** (học viên AI20k K4, ngoài nhóm) — đã đồng ý thử. Kế hoạch
+  validation:sáng 18/9 thử prototype với 2 người này và ≥3 người ngoài nhóm khác; giao task "tìm cách/nơi/hạn nộp daily
+  standup hoặc lab", quan sát im lặng, ghi điểm vướng và quote nguyên văn vào `validation/user_testing_log.md`.
 - Multi-prototype: không làm.
 
 ## §9. Changelog
 
-| Thời điểm  | Đổi gì                                                                                                        | Vì sao (trỏ về feedback/case nào)                                                          |
-|------------|---------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| 16/09/2026 | Cập nhật nhóm 4 thành viên, Nguyễn Đức Danh là đội trưởng, chọn Track B; đồng bộ README.md và TEAMMATES.md    | Theo xác nhận của nhóm; chưa phải thay đổi từ validation người dùng                        |
-| 16/09/2026 | Soạn Canvas nháp 4 ô ở §1–§2 cho ứng viên B1; thêm phân công đề xuất và các trường bằng chứng cần bổ sung     | Theo yêu cầu soạn bản nháp trước khảo sát; không khai kết quả hoặc người thử chưa xác nhận |
-| 16/09/2026 | Chốt B1; mở rộng lát cắt từ "bài lab" sang "hạng mục bắt buộc"; thêm evidence chuẩn B, phân công, 2 người thử | Mining: 15/28 câu hỏi về nộp là daily standup, không chỉ lab (research/mining-evidence.md) |
-| 16/09/2026 | Thêm evidence chuẩn A (khảo sát n=20) và đánh giá trung thực mức xác nhận theo lát cắt                        | research/survey-results.md                                                                 |
+| Thời điểm  | Đổi gì                                                                                                                                                            | Vì sao (trỏ về feedback/case nào)                                                          |
+|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| 16/09/2026 | Cập nhật nhóm 4 thành viên, Nguyễn Đức Danh là đội trưởng, chọn Track B; đồng bộ README.md và TEAMMATES.md                                                        | Theo xác nhận của nhóm; chưa phải thay đổi từ validation người dùng                        |
+| 16/09/2026 | Soạn Canvas nháp 4 ô ở §1–§2 cho ứng viên B1; thêm phân công đề xuất và các trường bằng chứng cần bổ sung                                                         | Theo yêu cầu soạn bản nháp trước khảo sát; không khai kết quả hoặc người thử chưa xác nhận |
+| 16/09/2026 | Chốt B1; mở rộng lát cắt từ "bài lab" sang "hạng mục bắt buộc"; thêm evidence chuẩn B, phân công, 2 người thử                                                     | Mining: 15/28 câu hỏi về nộp là daily standup, không chỉ lab (research/mining-evidence.md) |
+| 16/09/2026 | Thêm evidence chuẩn A (khảo sát n=20) và đánh giá trung thực mức xác nhận theo lát cắt                                                                            | research/survey-results.md                                                                 |
+| 16/09/2026 | CP2: thêm mock bấm được 4 nhánh, kho thông báo giả lập, §3 sản phẩm tương tự, §4 mức prototype + 6 nguyên tắc HAX, §5 4 lớp chỗ khó + 9 kịch bản, §6 bốn đường đi | Chuẩn bị CP2; chưa có feedback người dùng                                                  |
