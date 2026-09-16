@@ -1,0 +1,67 @@
+{
+  "_note": "DỮ LIỆU GIẢ LẬP do nhóm DCC tự soạn để làm nguồn cho prototype. Không phải thông báo thật của BTC; không copy từ data pack. Nội dung mô phỏng các loại thông báo nộp bài học viên hay hỏi (xem research/mining-evidence.md).",
+  "announcements": [
+    {
+      "id": "TB-01",
+      "item": "daily_standup",
+      "title": "Hướng dẫn nộp Daily Standup",
+      "published": "2026-09-13 08:00",
+      "channel": "#thong-bao",
+      "where": "Kênh #daily-standup trong server Discord của team",
+      "how": "Gõ lệnh /daily-standup, điền 3 mục: hôm qua làm gì · hôm nay làm gì · đang vướng gì. Mỗi thành viên tự nộp, không nộp hộ.",
+      "deadline": "Mở 06:00, đóng 23:59 cùng ngày (giờ VN)",
+      "consequence": "Nộp ngoài khung giờ không được tính XP của ngày đó.",
+      "quote": "Mỗi thành viên dùng lệnh /daily-standup trong kênh #daily-standup của team, khung nộp từ 06:00 đến 23:59 mỗi ngày."
+    },
+    {
+      "id": "TB-02",
+      "item": "daily_standup",
+      "title": "[CẬP NHẬT] Khung giờ nộp Daily Standup",
+      "published": "2026-09-14 09:30",
+      "channel": "#thong-bao",
+      "supersedes": "TB-01",
+      "where": "Kênh #daily-standup trong server Discord của team",
+      "how": "Gõ lệnh /daily-standup, điền 3 mục: hôm qua làm gì · hôm nay làm gì · đang vướng gì. Mỗi thành viên tự nộp, không nộp hộ.",
+      "deadline": "Mở 08:00, đóng 22:00 cùng ngày (giờ VN) — áp dụng từ 15/09",
+      "consequence": "Bot sẽ chặn lệnh ngoài khung giờ; nộp muộn không được tính XP của ngày đó.",
+      "quote": "Từ 15/09, khung nộp Daily Standup đổi thành 08:00–22:00; ngoài khung giờ bot sẽ không nhận lệnh."
+    },
+    {
+      "id": "TB-03",
+      "item": "lab",
+      "labs": [1, 2, 3, 4],
+      "title": "Quy định nộp bài Lab 1–4",
+      "published": "2026-09-12 07:00",
+      "channel": "#thong-bao",
+      "where": "VLearn → khoá học → mục Lab tương ứng",
+      "how": "Nộp link repository GitHub ở chế độ Public (tạo repo mới, không fork repo đề). Chỉ tính lần nộp cuối trước hạn.",
+      "deadline": "23:59 ngày học buổi lab đó (giờ VN)",
+      "consequence": "Hệ thống VLearn đóng ô nộp sau 23:59; không nhận nộp muộn qua Discord.",
+      "quote": "Bài Lab 1–4 nộp link repo GitHub public trên VLearn trước 23:59 ngày học lab; VLearn tự đóng ô nộp sau thời điểm này."
+    },
+    {
+      "id": "TB-04",
+      "item": "de_tai",
+      "title": "Đăng ký đề tài nhóm Build Phase",
+      "published": "2026-09-13 20:00",
+      "channel": "#thong-bao",
+      "where": "Form đăng ký đề tài (link ghim trong #thong-bao)",
+      "how": "Đội trưởng nộp một lần cho cả nhóm: tên đề tài, mã nhóm, mô tả 3 câu. Các thành viên khác không cần nộp.",
+      "deadline": "23:59 ngày 15/09 (giờ VN)",
+      "consequence": "Nhóm chưa đăng ký sẽ được BTC gán đề tài mặc định.",
+      "quote": "Mỗi nhóm cử đội trưởng điền form đăng ký đề tài một lần, hạn 23:59 ngày 15/09."
+    },
+    {
+      "id": "TB-05",
+      "item": "mentor_duty",
+      "title": "Nộp log Mentor Duty",
+      "published": "2026-09-14 11:00",
+      "channel": "#thong-bao",
+      "where": "Kênh #mentor-duty",
+      "how": "Gửi 1 tin nhắn gồm: ngày trực · người được hỗ trợ (mã nhóm) · nội dung hỗ trợ.",
+      "deadline": "12:00 trưa ngày hôm sau của buổi trực",
+      "consequence": "Log nộp sau 12:00 hôm sau không được cộng điểm Mentor Duty.",
+      "quote": "Log Mentor Duty gửi trong #mentor-duty chậm nhất 12:00 trưa ngày hôm sau buổi trực."
+    }
+  ]
+}
