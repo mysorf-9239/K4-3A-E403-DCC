@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trợ lý Nộp Bài — Mock CP2 · DCC</title>
+<style>
+  :root{--bg:#f6f7fb;--card:#fff;--ink:#1c2b4a;--muted:#5d6b82;--line:#e3e7ef;--blue:#2f6fd6;--green:#1f9d6b;--amber:#c7831d;--red:#c9443b;--purple:#6a4fc4}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:#313338;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:12px}
+  header .ch{opacity:.7}
+  .mockflag{margin-left:auto;background:#f0b232;color:#222;font-weight:700;font-size:12px;padding:4px 10px;border-radius:10px}
+  main{max-width:980px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr 300px;gap:16px}
+  @media(max-width:860px){main{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px}
+  #chat{padding:16px;min-height:520px;display:flex;flex-direction:column;gap:12px}
+  .msg{max-width:92%}
+  .user{align-self:flex-end;background:var(--blue);color:#fff;padding:10px 14px;border-radius:14px 14px 2px 14px}
+  .bot{align-self:flex-start;background:#f2f4f8;padding:12px 14px;border-radius:14px 14px 14px 2px;border:1px solid var(--line)}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;color:#fff;margin-bottom:6px}
+  .FOUND{background:var(--green)}.CLARIFY{background:var(--amber)}.NOT_FOUND{background:var(--red)}.OUT_OF_SCOPE{background:var(--purple)}
+  .fields{display:grid;grid-template-columns:90px 1fr;gap:4px 10px;margin:6px 0}
+  .fields b{color:var(--muted);font-weight:600}
+  .cite{border-left:4px solid var(--blue);background:#fff;padding:8px 10px;margin-top:8px;font-size:14px}
+  .cite small{color:var(--muted);display:block}
+  .warn{background:#fff5e0;border:1px solid #f0d49a;border-radius:8px;padding:6px 10px;font-size:13px;margin-top:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  button{font:inherit;cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:18px;padding:6px 12px}
+  button:hover{border-color:var(--blue)}
+  button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:13px}
+  .composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+  .composer input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit}
+  aside{padding:14px;font-size:14px}
+  aside h3{margin:4px 0 8px;font-size:15px}
+  aside .sample{display:block;width:100%;text-align:left;border-radius:10px;margin-bottom:6px}
+  aside .tag{font-size:11px;font-weight:700;color:var(--muted)}
+  pre{background:#0f1729;color:#cfe3ff;padding:10px;border-radius:10px;font-size:12px;overflow:auto;max-height:260px;white-space:pre-wrap}
+  textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:6px;margin-top:6px}
+  .hint{color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <strong>🤖 Trợ lý Nộp Bài</strong><span class="ch"># hoi-dap-nop-bai · Discord K4 (giả lập)</span>
+  <span class="mockflag">MOCK CP2 — chưa gọi AI thật</span>
+</header>
+<main>
+  <section class="panel">
+    <div id="chat"></div>
+    <form class="composer" id="composer">
+      <input id="q" placeholder="Hỏi về nơi nộp / cách nộp / hạn nộp daily standup, lab, đề tài, mentor duty…" autocomplete="off">
+      <button class="primary" type="submit">Gửi</button>
+    </form>
+  </section>
+  <aside class="panel">
+    <h3>Kịch bản demo (bấm để chạy)</h3>
+    <button class="sample" data-q="Nộp daily standup ở đâu, hạn khi nào?"><span class="tag">① HAPPY · FOUND</span><br>Nộp daily standup ở đâu, hạn khi nào?</button>
+    <button class="sample" data-q="Cho mình hỏi hạn nộp bài là khi nào?"><span class="tag">② LOW-CONFIDENCE · CLARIFY</span><br>Cho mình hỏi hạn nộp bài là khi nào?</button>
+    <button class="sample" data-q="Lab 7 nộp ở đâu vậy?"><span class="tag">③ FAILURE · NOT_FOUND</span><br>Lab 7 nộp ở đâu vậy?</button>
+    <button class="sample" data-q="Lab 2 nộp như thế nào?"><span class="tag">④ CORRECTION</span><br>Lab 2 nộp như thế nào? → bấm "Không phải cái tôi hỏi"</button>
+    <button class="sample" data-q="Mình nộp lab 2 muộn 1 phút, gia hạn giúp mình được không?"><span class="tag">⑤ NGOÀI PHẠM VI</span><br>Nộp muộn, gia hạn giúp mình?</button>
+    <h3 style="margin-top:14px">Quyết định (trace giả lập)</h3>
+    <pre id="trace">—</pre>
+    <p class="hint">Ở CP3, khối quyết định này được thay bằng lời gọi LLM thật; trace thật lưu ở <code>codebase/logs/</code>.</p>
+  </aside>
+</main>
+
+<script>
+const DATA = {"_note": "DỮ LIỆU GIẢ LẬP do nhóm DCC tự soạn để làm nguồn cho prototype. Không phải thông báo thật của BTC; không copy từ data pack. Nội dung mô phỏng các loại thông báo nộp bài học viên hay hỏi (xem research/mining-evidence.md).", "announcements": [{"id": "TB-01", "item": "daily_standup", "title": "Hướng dẫn nộp Daily Standup", "published": "2026-09-13 08:00", "channel": "#thong-bao", "where": "Kênh #daily-standup trong server Discord của team", "how": "Gõ lệnh /daily-standup, điền 3 mục: hôm qua làm gì · hôm nay làm gì · đang vướng gì. Mỗi thành viên tự nộp, không nộp hộ.", "deadline": "Mở 06:00, đóng 23:59 cùng ngày (giờ VN)", "consequence": "Nộp ngoài khung giờ không được tính XP của ngày đó.", "quote": "Mỗi thành viên dùng lệnh /daily-standup trong kênh #daily-standup của team, khung nộp từ 06:00 đến 23:59 mỗi ngày."}, {"id": "TB-02", "item": "daily_standup", "title": "[CẬP NHẬT] Khung giờ nộp Daily Standup", "published": "2026-09-14 09:30", "channel": "#thong-bao", "supersedes": "TB-01", "where": "Kênh #daily-standup trong server Discord của team", "how": "Gõ lệnh /daily-standup, điền 3 mục: hôm qua làm gì · hôm nay làm gì · đang vướng gì. Mỗi thành viên tự nộp, không nộp hộ.", "deadline": "Mở 08:00, đóng 22:00 cùng ngày (giờ VN) — áp dụng từ 15/09", "consequence": "Bot sẽ chặn lệnh ngoài khung giờ; nộp muộn không được tính XP của ngày đó.", "quote": "Từ 15/09, khung nộp Daily Standup đổi thành 08:00–22:00; ngoài khung giờ bot sẽ không nhận lệnh."}, {"id": "TB-03", "item": "lab", "labs": [1, 2, 3, 4], "title": "Quy định nộp bài Lab 1–4", "published": "2026-09-12 07:00", "channel": "#thong-bao", "where": "VLearn → khoá học → mục Lab tương ứng", "how": "Nộp link repository GitHub ở chế độ Public (tạo repo mới, không fork repo đề). Chỉ tính lần nộp cuối trước hạn.", "deadline": "23:59 ngày học buổi lab đó (giờ VN)", "consequence": "Hệ thống VLearn đóng ô nộp sau 23:59; không nhận nộp muộn qua Discord.", "quote": "Bài Lab 1–4 nộp link repo GitHub public trên VLearn trước 23:59 ngày học lab; VLearn tự đóng ô nộp sau thời điểm này."}, {"id": "TB-04", "item": "de_tai", "title": "Đăng ký đề tài nhóm Build Phase", "published": "2026-09-13 20:00", "channel": "#thong-bao", "where": "Form đăng ký đề tài (link ghim trong #thong-bao)", "how": "Đội trưởng nộp một lần cho cả nhóm: tên đề tài, mã nhóm, mô tả 3 câu. Các thành viên khác không cần nộp.", "deadline": "23:59 ngày 15/09 (giờ VN)", "consequence": "Nhóm chưa đăng ký sẽ được BTC gán đề tài mặc định.", "quote": "Mỗi nhóm cử đội trưởng điền form đăng ký đề tài một lần, hạn 23:59 ngày 15/09."}, {"id": "TB-05", "item": "mentor_duty", "title": "Nộp log Mentor Duty", "published": "2026-09-14 11:00", "channel": "#thong-bao", "where": "Kênh #mentor-duty", "how": "Gửi 1 tin nhắn gồm: ngày trực · người được hỗ trợ (mã nhóm) · nội dung hỗ trợ.", "deadline": "12:00 trưa ngày hôm sau của buổi trực", "consequence": "Log nộp sau 12:00 hôm sau không được cộng điểm Mentor Duty.", "quote": "Log Mentor Duty gửi trong #mentor-duty chậm nhất 12:00 trưa ngày hôm sau buổi trực."}]};
+const ITEMS = {daily_standup:"Daily standup", lab:"Bài lab", de_tai:"Đề tài nhóm", mentor_duty:"Mentor duty"};
+const chat = document.getElementById('chat');
+const traceEl = document.getElementById('trace');
+let lastQ = "";
+
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d');
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function add(html, cls){ const d=document.createElement('div'); d.className='msg '+cls; d.innerHTML=html; chat.appendChild(d); chat.scrollTop=chat.scrollHeight; return d; }
+
+// ===== MOCK DECISION: rule-based, thay bằng LLM thật ở CP3 =====
+function decide(q, override){
+  const t = norm(q);
+  if(!override && /gia han|extend|nop ho|nop giup|diem danh|check diem|check giup|xem diem|xp cua|so xp/.test(t))
+    return {decision:"OUT_OF_SCOPE", reason:"Yêu cầu hành động/tra dữ liệu cá nhân — ngoài thẩm quyền trợ lý"};
+  let item = override?.item, lab = override?.lab;
+  if(!item){
+    if(/standup|daily/.test(t)) item="daily_standup";
+    else if(/mentor/.test(t)) item="mentor_duty";
+    else if(/de tai|topic/.test(t)) item="de_tai";
+    else if(/\blab\b/.test(t)) item="lab";
+  }
+  if(item==="lab" && lab==null){ const m=t.match(/lab\s*(\d+)/); if(m) lab=+m[1]; }
+  const asksSubmission = /nop|han|deadline|submit|o dau|nhu the nao|nhu nao|khi nao/.test(t);
+  if(!item && !asksSubmission) return {decision:"OUT_OF_SCOPE", reason:"Không phải câu hỏi về yêu cầu nộp bài"};
+  if(!item) return {decision:"CLARIFY", missing:"item", reason:"Không rõ hạng mục cần nộp"};
+  if(item==="lab" && lab==null) return {decision:"CLARIFY", missing:"lab", item, reason:"Không rõ lab số mấy"};
+  let cands = DATA.announcements.filter(a=>a.item===item && (item!=="lab" || a.labs.includes(lab)));
+  if(!cands.length) return {decision:"NOT_FOUND", item, lab, reason:"Không có thông báo chính thức khớp"};
+  cands.sort((a,b)=>b.published.localeCompare(a.published));
+  const src=cands[0]; const older=cands.slice(1).map(a=>a.id);
+  return {decision:"FOUND", item, lab, source_id:src.id, superseded:older, reason:"Chọn thông báo mới nhất khớp hạng mục"};
+}
+
+function ask(q, override){
+  if(!override){ add(esc(q),'user'); lastQ=q; }
+  const r = decide(q, override);
+  traceEl.textContent = JSON.stringify({input:q, override:override||null, ...r}, null, 2);
+  render(r);
+}
+
+function feedback(){
+  return `<div class="actions">
+    <button onclick="correction()">✏️ Không phải cái tôi hỏi</button>
+    <button onclick="this.parentNode.innerHTML='<span class=hint>Cảm ơn bạn! 👍 đã ghi nhận.</span>'">👍 Hữu ích</button>
+    <button onclick="thumbDown(this)">👎 Sai/thiếu</button>
+  </div>`;
+}
+window.thumbDown = btn => { btn.parentNode.innerHTML = `<div style="width:100%"><span class="hint">Sai chỗ nào?</span>
+  <div class="chips"><button onclick="fbDone(this)">Sai hạn nộp</button><button onclick="fbDone(this)">Sai nơi nộp</button><button onclick="fbDone(this)">Nguồn cũ</button><button onclick="fbDone(this)">Khác</button></div></div>`; };
+window.fbDone = b => { b.closest('.actions').innerHTML='<span class="hint">Đã ghi nhận phản hồi "'+esc(b.textContent)+'" — nhóm dùng để sửa nguồn/prompt.</span>'; };
+
+function itemChips(){
+  return `<div class="chips">${Object.entries(ITEMS).map(([k,v])=>`<button onclick="pick('${k}')">${v}</button>`).join('')}</div>`;
+}
+window.pick = item => {
+  add('Chọn: '+ITEMS[item],'user');
+  if(item==='lab'){ render({decision:"CLARIFY", missing:"lab", item, reason:"Không rõ lab số mấy"}); return; }
+  ask(lastQ, {item});
+};
+window.pickLab = n => { add('Lab '+n,'user'); ask(lastQ,{item:'lab',lab:n}); };
+window.correction = () => {
+  add(`Bạn muốn hỏi về hạng mục nào? Mình sẽ tra lại theo thông báo chính thức.${itemChips()}`,'bot');
+};
+window.copyTA = btn => {
+  const txt = `[Câu hỏi cần TA] ${lastQ} — Trợ lý chưa tìm thấy thông báo chính thức.`;
+  btn.insertAdjacentHTML('afterend', `<textarea rows="2">${esc(txt)}</textarea><span class="hint">Bạn tự copy và gửi vào kênh #hoi-dap-ta — trợ lý không tự tag TA.</span>`);
+  btn.remove();
+};
+
+function render(r){
+  const b = `<span class="badge ${r.decision}">${r.decision}</span><br>`;
+  if(r.decision==="FOUND"){
+    const a = DATA.announcements.find(x=>x.id===r.source_id);
+    const label = ITEMS[r.item] + (r.lab? ' '+r.lab : '');
+    let warn = r.superseded.length ? `<div class="warn">⚠️ Thông báo này <b>thay thế</b> ${r.superseded.join(', ')} (khung giờ cũ). Mình dùng bản mới nhất.</div>` : '';
+    add(`${b}<b>${esc(label)}</b>
+      <div class="fields"><b>Nơi nộp</b><span>${esc(a.where)}</span><b>Cách nộp</b><span>${esc(a.how)}</span><b>Hạn nộp</b><span><b>${esc(a.deadline)}</b></span><b>Lưu ý</b><span>${esc(a.consequence)}</span></div>
+      <div class="cite">“${esc(a.quote)}”<small>Nguồn: ${a.id} · ${esc(a.title)} · ${esc(a.channel)} · ${a.published} <a href="#" onclick="return false">Mở thông báo gốc ↗</a></small></div>
+      ${warn}${feedback()}`,'bot');
+  } else if(r.decision==="CLARIFY"){
+    if(r.missing==="lab"){
+      add(`${b}Bạn hỏi <b>lab số mấy</b>? Mỗi lab có thể có quy định khác nhau.<div class="chips">${[1,2,3,4,5,6,7].map(n=>`<button onclick="pickLab(${n})">Lab ${n}</button>`).join('')}</div>`,'bot');
+    } else {
+      add(`${b}Mình chưa chắc bạn hỏi hạn nộp của <b>hạng mục nào</b> — mỗi hạng mục có hạn khác nhau, mình không muốn đoán.${itemChips()}`,'bot');
+    }
+  } else if(r.decision==="NOT_FOUND"){
+    const label = ITEMS[r.item] + (r.lab? ' '+r.lab : '');
+    add(`${b}Mình <b>chưa tìm thấy thông báo chính thức</b> nào về <b>${esc(label)}</b>, nên không đưa ra hạn hay nơi nộp để tránh bạn nộp sai.
+      <div class="actions"><button class="primary" onclick="copyTA(this)">📝 Soạn câu hỏi gửi TA</button><button onclick="correction()">✏️ Hỏi hạng mục khác</button></div>`,'bot');
+  } else {
+    add(`${b}Việc này <b>nằm ngoài phạm vi</b> của trợ lý: mình chỉ tra <b>nơi nộp · cách nộp · hạn nộp</b> theo thông báo chính thức, không gia hạn, không nộp hộ và không xem điểm/điểm danh cá nhân.
+      <div class="actions"><button onclick="copyTA(this)">📝 Soạn tin nhắn gửi TA/BTC</button><button onclick="correction()">🔎 Tra quy định nộp thay vào đó</button></div>`,'bot');
+  }
+}
+
+add(`👋 Mình là <b>Trợ lý Nộp Bài</b>. Mình trả lời <b>nộp ở đâu · nộp thế nào · hạn khi nào</b> cho daily standup, bài lab, đề tài nhóm và mentor duty — <b>chỉ dựa trên thông báo chính thức</b> và luôn kèm trích dẫn.<br><span class="hint">Mình không xem điểm/điểm danh cá nhân, không gia hạn hay nộp hộ. Không có nguồn thì mình sẽ nói rõ và giúp bạn hỏi TA.</span>`,'bot');
+
+document.getElementById('composer').addEventListener('submit', e=>{ e.preventDefault(); const q=document.getElementById('q'); if(q.value.trim()){ ask(q.value.trim()); q.value=''; } });
+document.querySelectorAll('.sample').forEach(b=>b.addEventListener('click',()=>ask(b.dataset.q)));
+</script>
+</body>
+</html>
