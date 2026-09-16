@@ -139,11 +139,44 @@ nên gộp làm nhánh trải nghiệm.
   |---|---|
 
 ## §5. Kiểu lỗi — 4 lớp chỗ khó + kịch bản (≥8) [bảng theo guide §2.5]
+| Lớp chỗ khó | Cụ thể trong lát cắt | Vì sao nguy hiểm |
+|---|---|---|
+| ① Nguồn sự thật | AI tự bịa hạn/nơi nộp khi không có thông báo, hoặc lấy lời bot/học viên khác làm nguồn | Học viên tin và nộp sai → mất XP/điểm danh |
+| ② Mơ hồ / thiếu thông tin | Câu hỏi không nói hạng mục ("hạn nộp bài?"), không nói lab số mấy, hoặc gộp nhiều hạng mục | Trả lời nhầm hạng mục có hạn khác nhau |
+| ③ Ngoài phạm vi / thẩm quyền | Đòi gia hạn, nộp hộ, xem điểm danh/XP cá nhân, hỏi kiến thức bài học | Hứa hẹn thay BTC hoặc lộ dữ liệu cá nhân |
+| ④ Đặc thù domain | Thông báo cập nhật đổi khung giờ (TB-01 → TB-02); ai nộp (từng người vs đội trưởng); giờ VN; hạn "ngày hôm sau" | Đúng nguồn nhưng dùng bản cũ hoặc sai người nộp vẫn mất điểm |
+
+| # | Lớp | Tình huống cụ thể (input học viên) | Hành vi mong muốn (nói gì · hiện gì · cho làm gì tiếp) | Nhánh | Nguyên tắc áp |
+|---|---|---|---|---|---|
+| K1 | ① | "Lab 7 nộp ở đâu vậy?" (chưa có thông báo lab 7) | Nói rõ chưa có thông báo chính thức, không đưa hạn, nút soạn câu hỏi gửi TA | NOT_FOUND | G10, G11 |
+| K2 | ① | "Bot hôm qua bảo standup hạn 23:59, đúng không?" | Không xác nhận theo lời bot; trả theo thông báo mới nhất TB-02 (22:00) kèm trích dẫn | FOUND + cảnh báo | G11, G2 |
+| K3 | ② | "Cho mình hỏi hạn nộp bài là khi nào?" | Hỏi lại hạng mục bằng nút chọn nhanh, không đoán | CLARIFY | G10 |
+| K4 | ② | "Lab nộp như nào?" | Hỏi lại lab số mấy | CLARIFY | G10 |
+| K5 | ③ | "Mình nộp lab 2 muộn 1 phút, gia hạn giúp mình được không?" | Từ chối gia hạn, nêu phạm vi, soạn sẵn tin để học viên tự gửi TA/BTC; gợi ý tra quy định nộp lab 2 | OUT_OF_SCOPE | G1, G10 |
+| K6 | ③ | "Check giúp mình đã được điểm danh chưa" | Từ chối: không truy cập dữ liệu cá nhân; hướng dẫn hỏi TA | OUT_OF_SCOPE | G1 |
+| K7 | ④ | "Nộp daily standup ở đâu, hạn khi nào?" | Dùng TB-02 (mới nhất), cảnh báo TB-01 đã bị thay thế | FOUND | G11, G2 |
+| K8 | ④ | "Đề tài nhóm thì cả nhóm có phải nộp không?" | Trả theo TB-04: chỉ đội trưởng nộp 1 lần, kèm hạn và trích dẫn | FOUND | G11 |
+| K9 | ④ | "Mentor duty hôm nay trực thì hạn nộp log khi nào?" | Trả "12:00 trưa ngày hôm sau" đúng nguồn TB-05, không đổi thành 23:59 hôm nay | FOUND | G11 |
+
+**Kịch bản nhóm sợ nhất khi demo:** K2 — học viên dẫn lời bot cũ "hạn 23:59" và AI xác nhận theo, trong khi thông báo mới là 22:00 → học viên nộp lúc 22:30 bị chặn, mất XP. Đây chính là lỗi thật trong data (M82163). Tiếp theo là K5 — AI mềm lòng hứa "sẽ báo TA gia hạn".
+
+Các kịch bản K1–K9 sẽ vào golden set (`eval/`) ở CP3; mỗi lớp ≥2 case.
 
 ## §6. Bốn đường đi của trải nghiệm
 
-- Happy path: · Low-confidence (②): · Failure/không căn cứ (①): · Correction (user sửa):
-- Khi bị đòi ngoài phạm vi (③): · Case đặc thù domain (④):
+ơ đồ luồng: [codebase/flow.md](codebase/flow.md). Tất cả nhánh bấm thử được trong `codebase/mock/index.html` (nút "Kịch bản demo").
+
+| Đường đi | Khi nào | Học viên thấy gì | Làm gì tiếp |
+|---|---|---|---|
+| **Happy (FOUND)** | Có thông báo chính thức khớp hạng mục | Thẻ 3 trường Nơi nộp · Cách nộp · Hạn nộp + Lưu ý hậu quả + trích dẫn nguyên văn (mã TB, kênh, thời điểm) | Đi nộp; 👍/👎 hoặc sửa |
+| **Low-confidence (CLARIFY, ②)** | Thiếu hạng mục hoặc số lab | 1 câu hỏi lại + nút chọn nhanh (Daily standup / Bài lab / Đề tài / Mentor duty; Lab 1…7) | Bấm 1 nút → bot trả lời lại |
+| **Failure / không căn cứ (NOT_FOUND, ①)** | Không có thông báo chính thức khớp | "Chưa tìm thấy thông báo chính thức… không đưa ra hạn để tránh nộp sai" | Nút "Soạn câu hỏi gửi TA" (học viên tự copy gửi) hoặc hỏi hạng mục khác |
+| **Correction (user sửa)** | Học viên thấy câu trả lời sai hạng mục/sai ý | Nút "✏️ Không phải cái tôi hỏi" → chọn lại hạng mục; 👎 → chọn "sai chỗ nào" | Bot trả lời lại theo lựa chọn mới; phản hồi được ghi nhận |
+
+- **Khi bị đòi ngoài phạm vi (③):** nhãn OUT_OF_SCOPE, nêu rõ trợ lý chỉ tra nơi/cách/hạn nộp; không gia hạn, không nộp hộ, không
+  xem điểm cá nhân; nút soạn tin gửi TA/BTC và nút "Tra quy định nộp thay vào đó".
+- **Case đặc thù domain (④):** khi nhiều thông báo cùng hạng mục, luôn dùng bản `published` mới nhất và hiện cảnh báo vàng nêu
+  mã thông báo bị thay thế; hiển thị rõ ai phải nộp (từng thành viên vs đội trưởng) lấy từ nguồn.
 
 ## §7. Kiểm thử
 
