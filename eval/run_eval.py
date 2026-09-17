@@ -1,7 +1,8 @@
 """Chạy toàn bộ golden set qua quyết định trung tâm (LLM thật) và ghi kết quả.
 
-Chạy từ gốc repo:  codebase/.venv/bin/python eval/run_eval.py
+Chạy từ gốc repo:  codebase/.venv/bin/python eval/run_eval.py [--set heldout] [mã case ...]
 Kết quả: eval/results/run_<thời điểm>.json + bảng trong eval/run_results.md (thêm lượt mới lên đầu).
+Với ``--set heldout``: đọc eval/heldout_set.json, ghi eval/results/heldout_<thời điểm>.json + eval/heldout_results.md.
 """
 import json
 import shutil
@@ -19,7 +20,10 @@ from dcc.config import LLM_MODEL, LLM_PROVIDER, RUNTIME_DIR  # noqa: E402
 from dcc.decide import decide  # noqa: E402
 
 EVAL = ROOT / "eval"
-GOLDEN = json.loads((EVAL / "golden_set.json").read_text(encoding="utf-8"))
+SET_NAME = "heldout" if "--set" in sys.argv and sys.argv[sys.argv.index("--set") + 1] == "heldout" else "golden"
+GOLDEN = json.loads((EVAL / f"{SET_NAME}_set.json").read_text(encoding="utf-8"))
+PREFIX = "heldout" if SET_NAME == "heldout" else "run"
+RESULTS_MD = "heldout_results.md" if SET_NAME == "heldout" else "run_results.md"
 #: Nghỉ giữa các case để không vượt giới hạn request/phút của free tier (Gemini flash-lite: 15/phút).
 PAUSE_SECONDS = 4.5
 
@@ -53,7 +57,7 @@ def judge(case: dict[str, Any], out: dict[str, Any]) -> tuple[bool, list[str]]:
 
 def main() -> None:
     """Chạy golden set (có thể lọc theo mã case trên dòng lệnh), in từng case, ghi JSON và bảng Markdown."""
-    only = set(sys.argv[1:])
+    only = {a for a in sys.argv[1:] if a not in ("--set", "heldout", "golden")}
     stash = stash_runtime()
     try:
         rows = _run_cases(only)
@@ -128,7 +132,7 @@ def _report(rows: list[dict[str, Any]]) -> None:
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
     summary = _summary(rows, ts)
     (EVAL / "results").mkdir(exist_ok=True)
-    (EVAL / "results" / f"run_{ts}.json").write_text(
+    (EVAL / "results" / f"{PREFIX}_{ts}.json").write_text(
         json.dumps({"summary": summary, "rows": rows}, ensure_ascii=False, indent=2), encoding="utf-8")
     write_markdown(summary, rows)
     print(json.dumps(summary, ensure_ascii=False, indent=2))
@@ -141,8 +145,9 @@ def write_markdown(s: dict[str, Any], rows: list[dict[str, Any]]) -> None:
         s: Tóm tắt lượt chạy.
         rows: Kết quả từng case.
     """
-    md = EVAL / "run_results.md"
-    header = ("# Kết quả chạy golden set\n\nMỗi lượt mới được thêm lên đầu. Trace đầy đủ (prompt + raw response) theo "
+    md = EVAL / RESULTS_MD
+    title = "bộ held-out" if SET_NAME == "heldout" else "golden set"
+    header = (f"# Kết quả chạy {title}\n\nMỗi lượt mới được thêm lên đầu. Trace đầy đủ (prompt + raw response) theo "
               "`trace_id` trong `codebase/logs/decisions.jsonl`.\n")
     old = md.read_text(encoding="utf-8") if md.exists() else header
     body = old[len(header):] if old.startswith(header) else old

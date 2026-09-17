@@ -3,12 +3,12 @@
 Trace đầy đủ theo `trace_id` trong `codebase/logs/ingest.jsonl`.
 
 
-**Diễn biến 3 lượt:**
+Diễn biến 3 lượt:
 - Lượt 1 (16/09 22:40) 10/10.
-- Lượt 2 (17/09 09:02) **9/10** — **I08 trượt vì lỗi thật**: LLM trả mốc `2026-09-17 18:00` (dấu cách thay `T`), guard định dạng bỏ mốc → đề xuất gia hạn đề tài mất giờ mới. Sửa: `normalize_due()` chấp nhận dấu cách/giây thừa (có test `test_normalize_due_accepts_space_and_seconds`); bộ kiểm thử và luật chấm không đổi.
-- Lượt 3 (17/09 09:03) 10/10. I10 lần này ra UPDATE thay vì DUPLICATE (cả hai trong luật chấp nhận) → phân loại quan hệ chưa ổn định giữa các lượt.
+- Lượt 2 (17/09 09:02) 9/10. I08 trượt: LLM trả mốc `2026-09-17 18:00` (dấu cách thay `T`), guard định dạng bỏ mốc nên đề xuất gia hạn đề tài mất giờ mới. Sau lượt này sửa: `normalize_due()` chấp nhận dấu cách/giây thừa (có test `test_normalize_due_accepts_space_and_seconds`); bộ kiểm thử và luật chấm không đổi.
+- Lượt 3 (17/09 09:03) 10/10. I10 lần này ra UPDATE thay vì DUPLICATE (cả hai trong luật chấp nhận), tức là phân loại quan hệ chưa ổn định giữa các lượt.
 
-**Giới hạn:** bộ chỉ 10 thông báo (8 tự soạn, 2 từ tài liệu công khai); pass rule chưa chấm độ nguyên văn các trường ngoài `quote` — vì vậy TA có nút "Sửa rồi duyệt" trước khi ghi sổ.
+Giới hạn: bộ chỉ có 10 thông báo (8 tự soạn, 2 trích tài liệu công khai); luật chấm chưa kiểm độ nguyên văn các trường ngoài `quote`. Trong bot, TA có nút "Sửa rồi duyệt" cho các trường này trước khi ghi sổ.
 
 ## Lượt 20260917-090352 · gemini · gemini-3.5-flash-lite
 

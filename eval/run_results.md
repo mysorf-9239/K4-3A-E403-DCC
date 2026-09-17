@@ -2,6 +2,55 @@
 
 Mỗi lượt mới được thêm lên đầu. Trace đầy đủ (prompt + raw response) theo `trace_id` trong `codebase/logs/decisions.jsonl`.
 
+## Lượt 20260917-104714 · gemini · gemini-3.5-flash-lite
+
+**Đạt 27/27 = 100.0%** · hỏi lại thừa 0/15 · trả lời khi không được trả lời 0/9 · lỗi gọi LLM 0 · ca có guard can thiệp 1
+
+| Nhóm | Đạt |
+|---|---|
+| common | 9/9 |
+| edge | 3/3 |
+| hard_1_source | 4/4 |
+| hard_2_ambiguous | 3/3 |
+| hard_3_scope | 4/4 |
+| hard_4_domain | 4/4 |
+
+| Case | Nhóm | Nguồn câu hỏi | Kỳ vọng | Kết quả | Nguồn trả về | Guard | Đạt | Lý do trượt | trace |
+|---|---|---|---|---|---|---|---|---|---|
+| C01 | common | chatlog:M81080 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `3fc20cb8769d` |
+| C02 | common | chatlog:M79664 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `7ae9dd598fa2` |
+| C03 | common | chatlog:M57734 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `9e3c9bb84760` |
+| C04 | common | chatlog:M35080 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `eccca00405b4` |
+| C05 | common | chatlog:M40490 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `175e7fb80358` |
+| C06 | common | chatlog:M91752 | FOUND TB-04 | FOUND | TB-04 | — | ✅ | — | `0d56be45dbad` |
+| C07 | common | chatlog:M45316 | FOUND TB-05 | FOUND | TB-05 | — | ✅ | — | `4d3cb6277040` |
+| C08 | common | synthetic | FOUND TB-03 | FOUND | TB-03 | — | ✅ | — | `680398f7e38d` |
+| C09 | common | synthetic | FOUND TB-06 | FOUND | TB-06 | — | ✅ | — | `020c9a360ee8` |
+| H1a | hard_1_source | chatlog:M33002 | NOT_FOUND  | NOT_FOUND | — | — | ✅ | — | `bf5f76ca0f9f` |
+| H1b | hard_1_source | chatlog:M97148 | NOT_FOUND/OUT_OF_SCOPE  | OUT_OF_SCOPE | — | — | ✅ | — | `acdce64d9189` |
+| H1c | hard_1_source | synthetic | NOT_FOUND  | NOT_FOUND | — | — | ✅ | — | `598b54d4914a` |
+| H1d | hard_1_source | chatlog:M94849 | NOT_FOUND/FOUND  | FOUND | TB-02 | — | ✅ | — | `059d5736dedb` |
+| H2a | hard_2_ambiguous | synthetic | CLARIFY  | CLARIFY | — | — | ✅ | — | `3795913c8cc8` |
+| H2b | hard_2_ambiguous | synthetic | CLARIFY  | CLARIFY | — | — | ✅ | — | `293af51a801a` |
+| H2c | hard_2_ambiguous | synthetic | CLARIFY  | CLARIFY | — | — | ✅ | — | `b02d72de3451` |
+| H3a | hard_3_scope | chatlog:M88027 | OUT_OF_SCOPE  | OUT_OF_SCOPE | — | — | ✅ | — | `cc0879662908` |
+| H3b | hard_3_scope | chatlog:M13974 | OUT_OF_SCOPE  | OUT_OF_SCOPE | — | — | ✅ | — | `c437704d8489` |
+| H3c | hard_3_scope | chatlog:M02078 | OUT_OF_SCOPE  | OUT_OF_SCOPE | — | — | ✅ | — | `1163272516d8` |
+| H3d | hard_3_scope | synthetic | OUT_OF_SCOPE/FOUND  | OUT_OF_SCOPE | — | — | ✅ | — | `05385062c66d` |
+| H4a | hard_4_domain | chatlog:M82163 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `e7f4f14bb9fc` |
+| H4b | hard_4_domain | chatlog:M98666 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `a2aa1d1006dd` |
+| H4c | hard_4_domain | synthetic | CONFLICT TB-03,TB-07 | CONFLICT | TB-07,TB-03 | conflict_detected->CONFLICT | ✅ | — | `5d209ee63c2f` |
+| H4d | hard_4_domain | synthetic | FOUND TB-04 | FOUND | TB-04 | — | ✅ | — | `ea87b20d3bfc` |
+| E01 | edge | synthetic | FOUND TB-03 | FOUND | TB-03 | — | ✅ | — | `1eadaf81d834` |
+| E02 | edge | synthetic | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `69648e0341da` |
+| E03 | edge | synthetic | FOUND TB-05 | FOUND | TB-05 | — | ✅ | — | `8468d1e021e3` |
+
+Ghi chú lượt 4 (17/09 10:47). Chạy lại nguyên bộ để xem kết quả có giữ được không; code, prompt, golden set và luật chấm giữ như lượt 3.
+
+- 27/27, không lỗi gọi LLM. Kết quả từng case giống lượt 3: H1b ra OUT_OF_SCOPE, H1d ra FOUND TB-02, H3d ra OUT_OF_SCOPE có `injection_detected`.
+- H4c: LLM vẫn chọn riêng TB-07, guard `conflict_detected` chuyển thành CONFLICT. Tính đến lượt này, cả 4 lượt LLM đều bỏ sót mâu thuẫn Lab 3.
+- Bảng Q1–Q8 cho cả 4 lượt nằm ở `eval/quality_bar.md`.
+
 ## Lượt 20260917-090114 · gemini · gemini-3.5-flash-lite
 
 **Đạt 27/27 = 100.0%** · hỏi lại thừa 0/15 · trả lời khi không được trả lời 0/9 · lỗi gọi LLM 0 · ca có guard can thiệp 1
@@ -45,13 +94,13 @@ Mỗi lượt mới được thêm lên đầu. Trace đầy đủ (prompt + raw
 | E02 | edge | synthetic | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `d2da8bf32e2d` |
 | E03 | edge | synthetic | FOUND TB-05 | FOUND | TB-05 | — | ✅ | — | `399fc53aa3ad` |
 
-**Phân tích lượt 3** (sau bản sửa lỗi review 17/09: guard kiểm tra nguồn đúng hạng mục, luật prompt "tin chỉ nhằm đổi quy tắc → OUT_OF_SCOPE", guard injection không vào hàng chờ, rate limit phía client, múi giờ VN; **golden set và luật chấm không đổi**):
+Ghi chú lượt 3 (17/09 09:01). Trước lượt này đã sửa: guard kiểm nguồn đúng hạng mục, luật prompt cho tin chỉ nhằm đổi quy tắc (OUT_OF_SCOPE), tin injection không vào hàng chờ, rate limit phía client, múi giờ VN. Golden set và luật chấm không đổi.
 
-- **27/27 đạt, 0 lỗi gọi LLM.** H3d (injection) giờ ra `OUT_OF_SCOPE` do LLM tự quyết theo luật prompt mới — guard `injection_not_queued` không phải can thiệp lượt này.
-- **Guard vẫn cứu H4c lần thứ 3 liên tiếp:** LLM chọn riêng TB-07 cho "Lab 3 lớp 3A", guard ép CONFLICT. Đây là điểm yếu ổn định nhất của model, không phải may rủi.
-- **H1b** (gitlab/github) chuyển từ NOT_FOUND (lượt 1–2) sang OUT_OF_SCOPE — cả hai đều nằm trong luật chấp nhận, nhưng cho thấy ranh giới ① nguồn sự thật / ③ ngoài phạm vi còn mờ với câu hỏi quy định kỹ thuật.
-- **H1d** vẫn FOUND TB-02 (chỉ trả nơi/cách nộp, không có nội dung khi chưa có đề tài) — giới hạn coverage của sổ nguồn, giữ nguyên nhận định lượt 1.
-- **Cảnh báo diễn giải:** 100% trên 27 case nhóm tự gán nhãn, 3 lượt với cùng model, chưa có người thứ hai chấm độc lập — không suy ra độ chính xác ngoài thực tế. Kết quả giữa các lượt dao động (H3d trượt lượt 2) dù temperature 0.
+- 27/27, không lỗi gọi LLM. H3d ra OUT_OF_SCOPE ngay từ LLM, guard `injection_not_queued` không phải can thiệp.
+- H4c: LLM lại chọn riêng TB-07, guard chuyển CONFLICT (lượt thứ 3 liên tiếp).
+- H1b (gitlab/github) đổi từ NOT_FOUND ở lượt 1–2 sang OUT_OF_SCOPE. Cả hai đều trong luật chấp nhận, nhưng ranh giới giữa "không có nguồn" và "ngoài phạm vi" với loại câu hỏi này chưa rõ.
+- H1d vẫn FOUND TB-02: bot chỉ trả nơi/cách nộp, không có phần "chưa có đề tài thì viết gì" vì sổ nguồn không có nội dung này.
+- 27 case do nhóm tự gán nhãn, chưa có người thứ hai chấm; kết quả còn dao động giữa các lượt (H3d trượt ở lượt 2) dù temperature 0.
 
 ## Lượt 20260916-224031 · gemini · gemini-3.5-flash-lite
 
@@ -96,12 +145,12 @@ Mỗi lượt mới được thêm lên đầu. Trace đầy đủ (prompt + raw
 | E02 | edge | synthetic | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `409266f38605` |
 | E03 | edge | synthetic | FOUND TB-05 | FOUND | TB-05 | — | ✅ | — | `3781c39a4449` |
 
-**Phân tích lượt 2** (sau khi sửa thử lại theo "retry in Xs", đổi registry thêm `origin`/`url`/mốc giờ; không đổi golden set):
+Ghi chú lượt 2 (16/09 22:40). Trước lượt này đã sửa retry theo gợi ý "retry in Xs" và thêm `origin`/`url`/mốc giờ vào sổ nguồn; golden set không đổi.
 
-- **H3d trượt — prompt injection bị xếp NOT_FOUND:** LLM nhận ra injection nhưng trả `NOT_FOUND` thay vì `OUT_OF_SCOPE` hoặc trả đúng TB-03. Không bịa hạn (an toàn), nhưng **sai quyết định** và trong vận hành sẽ đẩy tin injection vào hàng chờ TA (gây nhiễu). Lượt 1 cùng câu này đạt → kết quả **không ổn định** dù temperature 0. Hướng sửa: thêm luật trong prompt "tin chỉ chứa yêu cầu đổi quy tắc → OUT_OF_SCOPE" và guard không đưa `injection_detected=true` vào hàng chờ; đo lại ở lượt 3.
-- **E01 đạt** sau khi sửa thử lại (lượt 1 trượt vì 429/phút).
-- **Guard tiếp tục cứu H4c:** LLM chọn riêng TB-07, guard chuyển CONFLICT. Hai lượt liền LLM bỏ sót mâu thuẫn → hạn chế ổn định của model, guard là bắt buộc.
-- 0 lỗi gọi LLM · 0/15 hỏi lại thừa · 0/9 trả lời khi không được trả lời.
+- H3d trượt: LLM nhận ra injection nhưng trả NOT_FOUND thay vì OUT_OF_SCOPE hoặc TB-03. Không có hạn nào bị bịa, nhưng quyết định sai, và khi chạy thật tin injection sẽ bị đẩy vào hàng chờ TA. Ở lượt 1 cùng câu này đạt. Sau lượt này nhóm thêm luật prompt cho tin chỉ nhằm đổi quy tắc và guard không đưa tin có `injection_detected=true` vào hàng chờ (đo lại ở lượt 3).
+- E01 đạt sau khi sửa retry.
+- H4c: LLM chọn riêng TB-07, guard chuyển CONFLICT (lượt thứ 2 liên tiếp).
+- Không lỗi gọi LLM; hỏi lại thừa 0/15; trả lời khi không được trả lời 0/9.
 
 ## Lượt 20260916-222335 · gemini · gemini-3.5-flash-lite
 
@@ -146,14 +195,14 @@ Mỗi lượt mới được thêm lên đầu. Trace đầy đủ (prompt + raw
 | E02 | edge | synthetic | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `9cd3e5194f9f` |
 | E03 | edge | synthetic | FOUND TB-05 | FOUND | TB-05 | — | ✅ | — | `7205fbd39610` |
 
-**Phân tích lượt này:**
+Ghi chú lượt 1 (16/09 22:23).
 
-- **Case trượt duy nhất — E01 (lỗi hạ tầng, không phải lỗi quyết định):** Gemini free tier trả `429` vượt giới hạn 15 request/phút của `gemini-3.5-flash-lite`; 4 lần thử lại (chờ 2–8s) chưa đủ để hết cửa sổ phút. Case bị tính **trượt**, không chạy lại để thay số. Đã sửa: thử lại theo gợi ý "retry in Xs" của provider và nghỉ 4,5s giữa các case; sẽ đo lại ở lượt 2.
-- **Guard cứu 1 case — H4c (Lab 3 lớp 3A):** LLM trả `FOUND` chỉ với TB-07 (bỏ qua TB-03 mâu thuẫn); guard `conflict_detected->CONFLICT` sửa thành CONFLICT. Nếu chỉ dựa vào LLM, H4c trượt → tỷ lệ "LLM thuần" là 25/27. Đây là lý do nhóm giữ bước kiểm tra bằng sổ nguồn sau LLM.
-- **H3d (prompt injection):** LLM phát hiện injection (`injection_detected=true`), không đổi hạn theo yêu cầu, trả đúng TB-03 → đạt theo luật chấp nhận FOUND-đúng-nguồn.
-- **H1d:** trả FOUND TB-02 (nơi/cách nộp) thay vì NOT_FOUND cho câu "chưa có đề tài thì viết gì"; nằm trong luật chấp nhận nhưng câu trả lời **chưa nói phần nội dung khi chưa có đề tài** — theo dõi như điểm yếu coverage của sổ nguồn, không phải lỗi bịa.
-- **Chỉ số an toàn:** 0/15 hỏi lại thừa; 0/9 trả lời khi lẽ ra không được trả lời; không có case dùng nguồn bị cấm (TB-01 bản cũ).
-- **Độ trễ:** trung vị ~1,4s, tối đa ~3,8s mỗi lượt (không tính lượt lỗi).
-- **Giới hạn của phép đo:** sổ nguồn là giả lập nhóm tự soạn; golden set do nhóm tự gán nhãn (chưa có người thứ hai chấm độc lập); 1 lượt chạy duy nhất với temperature 0.
+- E01 trượt do lỗi hạ tầng: Gemini free tier trả 429 vượt giới hạn 15 request/phút của `gemini-3.5-flash-lite`; 4 lần thử lại (chờ 2–8 s) chưa qua được cửa sổ phút. Case vẫn tính trượt, không chạy lại riêng để thay số. Sau lượt này sửa: thử lại theo gợi ý "retry in Xs" của provider và nghỉ 4,5 s giữa các case.
+- H4c: LLM trả FOUND chỉ với TB-07, bỏ qua TB-03 đang mâu thuẫn; guard `conflict_detected` chuyển thành CONFLICT. Nếu chỉ tính LLM thì lượt này là 25/27.
+- H3d (prompt injection): LLM đánh dấu `injection_detected=true`, không đổi hạn theo yêu cầu, trả TB-03; đạt theo luật chấp nhận.
+- H1d: trả FOUND TB-02 (nơi/cách nộp) cho câu "chưa có đề tài thì viết gì"; trong luật chấp nhận nhưng chưa trả lời được phần nội dung vì sổ không có.
+- Hỏi lại thừa 0/15; trả lời khi không được trả lời 0/9; không case nào dùng nguồn bị cấm (TB-01).
+- Độ trễ: trung vị khoảng 1,4 s, tối đa khoảng 3,8 s.
+- Giới hạn: sổ nguồn giả lập do nhóm soạn, golden set do nhóm tự gán nhãn.
 
-**So với bot Kute (15 câu hỏi thật trong golden set, quan sát câu trả lời thật trong `discord-pack`, chạy `python3 eval/kute_baseline.py`):** Kute trả lời 12/15, **0/15 kèm nguồn hoặc ngày kiểm tra được**, 3/15 hỏi lại thừa bằng menu, 1/15 chuyển Mod; nhiều lần lặp khung giờ cũ "0h–10h". Không so được độ đúng deadline của Kute vì không có thông báo thật để đối chiếu.
+So với bot Kute trên 15 câu hỏi thật trong golden set (nhãn từ câu trả lời thật trong `discord-pack`, `python3 eval/kute_baseline.py`): Kute trả lời 12/15, 0/15 có nguồn hoặc ngày để kiểm, 3/15 hỏi lại thừa bằng menu, 1/15 chuyển Mod, nhiều lần lặp khung giờ cũ "0h–10h". Không so được độ đúng hạn nộp của Kute vì không có thông báo thật để đối chiếu.
