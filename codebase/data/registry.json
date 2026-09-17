@@ -1,0 +1,173 @@
+{
+  "_note": "Sổ nguồn gốc của bot DCC. origin=public_doc: trích từ tài liệu CÔNG KHAI của khoá (README repo đề Mini Hackathon, trang VLearn) kèm url. origin=simulated: thông báo GIẢ LẬP nhóm tự soạn để mô phỏng tình huống thật quan sát trong data pack (thông báo bị cập nhật, hai thông báo mâu thuẫn); không phải thông báo thật của BTC, không copy data pack. Mục mới trong lúc chạy (nạp từ kênh thông báo hoặc TA duyệt) nằm ở data/runtime/entries.json.",
+  "version": 2,
+  "entries": [
+    {
+      "id": "TB-01",
+      "kind": "official",
+      "item": "daily_standup",
+      "scope": "Tất cả học viên K4",
+      "title": "Hướng dẫn nộp Daily Standup",
+      "published": "2026-09-13 08:00",
+      "source": "#thong-bao",
+      "status": "superseded",
+      "superseded_by": "TB-02",
+      "who": "Từng thành viên tự nộp",
+      "where": "Thread Thảo luận trong kênh riêng của team",
+      "how": "Gõ lệnh /daily-standup và điền 3 mục: hôm qua, hôm nay, vướng mắc",
+      "deadline": "00:00–10:00 sáng mỗi ngày (giờ VN)",
+      "consequence": "Nộp sau 10:00 vẫn ghi nhận nhưng không cộng XP",
+      "quote": "Daily standup nộp bằng lệnh /daily-standup trong thread Thảo luận của team, khung 0h–10h sáng để được cộng XP.",
+      "origin": "simulated",
+      "url": null,
+      "recurring_daily_close": "10:00"
+    },
+    {
+      "id": "TB-02",
+      "kind": "official",
+      "item": "daily_standup",
+      "scope": "Tất cả học viên K4",
+      "title": "[CẬP NHẬT] Khung giờ Daily Standup",
+      "published": "2026-09-15 09:30",
+      "source": "#thong-bao",
+      "status": "active",
+      "supersedes": "TB-01",
+      "who": "Từng thành viên tự nộp, không nộp hộ",
+      "where": "Thread Thảo luận trong kênh riêng của team",
+      "how": "Gõ lệnh /daily-standup và điền 3 mục: hôm qua, hôm nay, vướng mắc",
+      "deadline": "06:00–23:59 mỗi ngày (giờ VN), áp dụng từ 16/09",
+      "consequence": "Ngoài khung giờ bot chặn lệnh; ngày không nộp không được cộng XP",
+      "quote": "Từ 16/09, khung nộp daily standup là 06:00–23:59 hằng ngày; ngoài khung giờ lệnh /daily-standup sẽ bị chặn.",
+      "origin": "simulated",
+      "url": null,
+      "recurring_daily_close": "23:59"
+    },
+    {
+      "id": "TB-03",
+      "kind": "official",
+      "item": "lab",
+      "labs": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "scope": "Tất cả lớp",
+      "title": "Quy định nộp bài Lab 1–4",
+      "published": "2026-09-12 07:00",
+      "source": "#thong-bao",
+      "status": "active",
+      "who": "Từng học viên",
+      "where": "VLearn → khoá học → mục Lab tương ứng",
+      "how": "Nộp link repository GitHub ở chế độ Public (repo mới, không fork repo đề); chỉ tính lần nộp cuối trước hạn",
+      "deadline": "23:59 ngày học buổi lab đó (giờ VN)",
+      "consequence": "VLearn tự đóng ô nộp sau hạn; không nhận nộp qua Discord",
+      "quote": "Lab 1–4 nộp link repo GitHub public trên VLearn trước 23:59 ngày học lab; VLearn tự đóng ô nộp sau thời điểm này.",
+      "origin": "simulated",
+      "url": null
+    },
+    {
+      "id": "TB-07",
+      "kind": "official",
+      "item": "lab",
+      "labs": [
+        3
+      ],
+      "scope": "Lớp 3A",
+      "title": "Lab 3 lớp 3A — hạn nộp",
+      "published": "2026-09-14 18:00",
+      "source": "#lop-3a",
+      "status": "active",
+      "who": "Từng học viên lớp 3A",
+      "where": "VLearn → khoá học → mục Lab 3",
+      "how": "Nộp link repository GitHub ở chế độ Public",
+      "deadline": "12:00 trưa ngày hôm sau buổi học Lab 3 (giờ VN)",
+      "consequence": "Không ghi rõ",
+      "quote": "Lớp 3A nộp Lab 3 trên VLearn chậm nhất 12:00 trưa hôm sau buổi học.",
+      "origin": "simulated",
+      "url": null
+    },
+    {
+      "id": "TB-04",
+      "kind": "official",
+      "item": "de_tai",
+      "scope": "Các nhóm Build Phase",
+      "title": "Đăng ký đề tài nhóm",
+      "published": "2026-09-13 20:00",
+      "source": "#thong-bao",
+      "status": "active",
+      "who": "Chỉ đội trưởng nộp, một lần cho cả nhóm",
+      "where": "Form đăng ký đề tài (link ghim trong #thong-bao)",
+      "how": "Điền tên đề tài, mã nhóm và mô tả 3 câu",
+      "deadline": "23:59 ngày 15/09 (giờ VN)",
+      "consequence": "Nhóm chưa đăng ký được BTC gán đề tài mặc định",
+      "quote": "Mỗi nhóm cử đội trưởng điền form đăng ký đề tài một lần, hạn 23:59 ngày 15/09.",
+      "origin": "simulated",
+      "url": null,
+      "deadlines": [
+        {
+          "label": "Đăng ký đề tài nhóm",
+          "due_at": "2026-09-15T23:59"
+        }
+      ]
+    },
+    {
+      "id": "TB-05",
+      "kind": "official",
+      "item": "mentor_duty",
+      "scope": "Học viên được phân công trực",
+      "title": "Nộp log Mentor Duty",
+      "published": "2026-09-14 11:00",
+      "source": "#thong-bao",
+      "status": "active",
+      "who": "Người trực",
+      "where": "Kênh #mentor-duty",
+      "how": "Gửi 1 tin nhắn gồm ngày trực, mã nhóm được hỗ trợ, nội dung hỗ trợ",
+      "deadline": "12:00 trưa ngày hôm sau buổi trực (giờ VN)",
+      "consequence": "Log gửi sau 12:00 hôm sau không được cộng điểm Mentor Duty",
+      "quote": "Log Mentor Duty gửi trong #mentor-duty chậm nhất 12:00 trưa ngày hôm sau buổi trực.",
+      "origin": "simulated",
+      "url": null
+    },
+    {
+      "id": "TB-06",
+      "kind": "official",
+      "item": "hackathon_checkpoint",
+      "scope": "Lớp 3A — Mini Hackathon Lab 5–6",
+      "title": "Lịch nộp checkpoint Mini Hackathon (ca 3A)",
+      "published": "2026-09-16 17:30",
+      "source": "README repo đề Mini Hackathon + trang Lab 05–06 trên VLearn",
+      "status": "active",
+      "who": "Đội trưởng nộp form CP1–CP5 bằng cùng một mã học viên; cuối bài mỗi thành viên tự nộp link repo trên VLearn",
+      "where": "Form nộp của từng checkpoint (link BTC công bố) + repo GitHub công khai của nhóm",
+      "how": "CP1: Canvas 4 ô + link repo công khai · CP2: luồng bấm thử được hoặc sơ đồ · CP3: video thao tác 30 giây + số đo · CP4: link spec.md đã chốt chuẩn đạt · CP5: slide 6 trang PDF + video demo dự phòng",
+      "deadline": "CP1 19:30 16/9 · CP2 21:00 16/9 · CP3 16:00 17/9 · CP4 21:00 17/9 · CP5 13:00 18/9 (ca 3A)",
+      "consequence": "Nộp muộn mốc nào được 0 điểm mốc đó, không bù bằng mốc khác",
+      "quote": "CP1 đến CP5 mỗi mốc 5 điểm. Nộp đúng hạn được đủ, nộp muộn là 0 điểm mốc đó.",
+      "origin": "public_doc",
+      "url": "https://github.com/VinUni-AI20k/K4-3A-Day05-06-AI-Product-Hackathon/blob/main/README.md",
+      "deadlines": [
+        {
+          "label": "CP1 · Canvas + repo",
+          "due_at": "2026-09-16T19:30"
+        },
+        {
+          "label": "CP2 · Luồng hoạt động",
+          "due_at": "2026-09-16T21:00"
+        },
+        {
+          "label": "CP3 · Video 30s + số đo",
+          "due_at": "2026-09-17T16:00"
+        },
+        {
+          "label": "CP4 · Chốt spec.md",
+          "due_at": "2026-09-17T21:00"
+        },
+        {
+          "label": "CP5 · Slide PDF + video dự phòng",
+          "due_at": "2026-09-18T13:00"
+        }
+      ]
+    }
+  ]
+}
