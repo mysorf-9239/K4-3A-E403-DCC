@@ -4,7 +4,7 @@
   danh): [survey-raw.csv](survey-raw.csv).
 - **n = 20 phản hồi.** Form không thu tên/mã học viên nên nhóm không tự xác minh được người trả lời ngoài nhóm và không
   trùng; nhóm mời trực tiếp học viên ngoài nhóm.
-- **Lưu ý trung thực:** R05 và R19 có nội dung giống hệt nhau (khác giờ gửi) → có thể là một người gửi 2 lần; số liệu
+- Ghi chú: R05 và R19 có nội dung giống hệt nhau (khác giờ gửi), có thể một người gửi 2 lần; số liệu
   được báo cả khi loại R19. R03 có câu trả lời mở chất lượng thấp ("Hậ", "Hehe") nhưng vẫn giữ trong mẫu.
 
 ## Quy tắc xác nhận (áp dụng như đã ghi trong spec, không đổi sau khi xem số)

@@ -37,7 +37,8 @@ print(len(sub), len({r['author'] for r in sub}))  # 28 18
 | Số tác giả khác nhau                            | 18                                                                     |
 | Trong đó hỏi trực tiếp bot (`mentions_bot`)     | 21 / 28                                                                |
 | Hỏi về daily standup                            | 15 tin, 9 tác giả                                                      |
-| Đã nộp muộn / bị chặn / xin gia hạn             | 8 tin (M88027, M01360, M21463, M32784, M98666, M45316, M82163, M35080) |
+| Nhắc đến nộp muộn / bị chặn / xin gia hạn       | 8 tin (M88027, M01360, M21463, M32784, M98666, M45316, M82163, M35080); **7 đã xảy ra** (6 tác giả), M35080 là câu hỏi giả định |
+| Trong 7 tin đã xảy ra: do không rõ/nhầm khung giờ | 5 (M98666, M82163, M45316, M21463, M32784) — đọc tay; M88027 muộn 1 phút, M01360 lỡ cửa sổ lập đội |
 | Phân bố theo ngày                               | 12/09: 1 · 13/09: 12 · 14/09: 15                                       |
 
 Nhận xét: cùng một câu hỏi (nộp daily standup ở đâu/như thế nào/khi nào) lặp lại nhiều lần trong buổi sáng 14/09
@@ -63,4 +64,4 @@ bot (M58536, M76564, M15491, M60145 trích lại câu bot rồi hỏi tiếp).
 - Chỉ 3 ngày onboarding, chỉ kênh public; không suy ra tỷ lệ toàn khóa.
 - Regex có thể bỏ sót câu hỏi không dùng từ "nộp/hạn" (ví dụ hỏi về điểm danh). Số 28 là cận dưới.
 - M82163 cho thấy câu trả lời của bot có thể mâu thuẫn với hệ thống thực tế; chưa kiểm chứng nguồn chính thức.
-- Kết quả khảo sát Google Form (chuẩn A) chưa được tổng hợp vào file này.
+- Kết quả khảo sát Google Form (chuẩn A) ở [survey-results.md](survey-results.md).
