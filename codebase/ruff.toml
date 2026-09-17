@@ -1,0 +1,13 @@
+# Lint cho codebase DCC (chạy từ thư mục codebase/: `ruff check .`)
+line-length = 120
+target-version = "py311"
+extend-exclude = ["mock", ".venv"]
+
+[lint]
+select = ["E", "F", "W", "B", "UP", "SIM", "I", "ANN"]
+ignore = [
+  "ANN401",  # dữ liệu JSON động dùng typing.Any có chủ đích
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["ANN001", "ANN201"]
