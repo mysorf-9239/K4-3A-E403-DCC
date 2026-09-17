@@ -1,0 +1,254 @@
+{
+  "summary": {
+    "run": "20260917-090352",
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "total": 10,
+    "passed": 10,
+    "pass_rate": 100.0
+  },
+  "rows": [
+    {
+      "id": "I01",
+      "group": "duplicate",
+      "origin": "public_doc:README repo đề (lịch ca 3A)",
+      "pass": true,
+      "fail_reasons": [],
+      "trace_id": "4fbdc42643d2",
+      "injection": false,
+      "got": [
+        {
+          "item": "hackathon_checkpoint",
+          "relation": "DUPLICATE",
+          "related": [
+            "TB-06"
+          ],
+          "labs": [
+            5,
+            6
+          ],
+          "deadlines": [
+            {
+              "label": "CP3 · Video thao tác 30 giây + số đo",
+              "due_at": "2026-09-17T16:00"
+            }
+          ],
+          "recurring": null,
+          "guards": []
+        }
+      ]
+    },
+    {
+      "id": "I02",
+      "group": "update",
+      "origin": "simulated",
+      "pass": true,
+      "fail_reasons": [],
+      "trace_id": "1c0bfbbde813",
+      "injection": false,
+      "got": [
+        {
+          "item": "daily_standup",
+          "relation": "UPDATE",
+          "related": [
+            "TB-02"
+          ],
+          "labs": null,
+          "deadlines": null,
+          "recurring": "22:00",
+          "guards": []
+        }
+      ]
+    },
+    {
+      "id": "I03",
+      "group": "conflict",
+      "origin": "simulated",
+      "pass": true,
+      "fail_reasons": [],
+      "trace_id": "0e3c49cfeed0",
+      "injection": false,
+      "got": [
+        {
+          "item": "lab",
+          "relation": "CONFLICT",
+          "related": [
+            "TB-03"
+          ],
+          "labs": [
+            2
+          ],
+          "deadlines": null,
+          "recurring": null,
+          "guards": []
+        }
+      ]
+    },
+    {
+      "id": "I04",
+      "group": "new",
+      "origin": "simulated",
+      "pass": true,
+      "fail_reasons": [],
+      "trace_id": "9ecb5afb2ddf",
+      "injection": false,
+      "got": [
+        {
+          "item": "lab",
+          "relation": "NEW",
+          "related": [],
+          "labs": [
+            5
+          ],
+          "deadlines": [
+            {
+              "label": "Lab 5",
+              "due_at": "2026-09-19T23:59"
+            }
+          ],
+          "recurring": null,
+          "guards": []
+        }
+      ]
+    },
+    {
+      "id": "I05",
+      "group": "not_submission",
+      "origin": "simulated",
+      "pass": true,
+      "fail_reasons": [],
+      "trace_id": "753dedb4d598",
+      "injection": false,
+      "got": []
+    },
+    {
+      "id": "I06",
+      "group": "not_submission",
+      "origin": "simulated",
+      "pass": true,
+      "fail_reasons": [],
+      "trace_id": "091582157c75",
+      "injection": false,
+      "got": []
+    },
+    {
+      "id": "I07",
+      "group": "injection",
+      "origin": "simulated",
+      "pass": true,
+      "fail_reasons": [],
+      "trace_id": "be5d6f5d12bd",
+      "injection": true,
+      "got": [
+        {
+          "item": "lab",
+          "relation": "DUPLICATE",
+          "related": [
+            "TB-03"
+          ],
+          "labs": [
+            1
+          ],
+          "deadlines": null,
+          "recurring": null,
+          "guards": []
+        }
+      ]
+    },
+    {
+      "id": "I08",
+      "group": "update_relative_date",
+      "origin": "simulated",
+      "pass": true,
+      "fail_reasons": [],
+      "trace_id": "a447136decb5",
+      "injection": false,
+      "got": [
+        {
+          "item": "de_tai",
+          "relation": "UPDATE",
+          "related": [
+            "TB-04"
+          ],
+          "labs": null,
+          "deadlines": [
+            {
+              "label": "Đăng ký đề tài nhóm",
+              "due_at": "2026-09-17T18:00"
+            }
+          ],
+          "recurring": null,
+          "guards": []
+        }
+      ]
+    },
+    {
+      "id": "I09",
+      "group": "multi",
+      "origin": "simulated",
+      "pass": true,
+      "fail_reasons": [],
+      "trace_id": "2b0d6131ac06",
+      "injection": false,
+      "got": [
+        {
+          "item": "lab",
+          "relation": "NEW",
+          "related": [],
+          "labs": [
+            6
+          ],
+          "deadlines": [
+            {
+              "label": "Lab 6",
+              "due_at": "2026-09-20T23:59"
+            }
+          ],
+          "recurring": null,
+          "guards": []
+        },
+        {
+          "item": "mentor_duty",
+          "relation": "DUPLICATE",
+          "related": [
+            "TB-05"
+          ],
+          "labs": null,
+          "deadlines": null,
+          "recurring": null,
+          "guards": []
+        }
+      ]
+    },
+    {
+      "id": "I10",
+      "group": "duplicate",
+      "origin": "public_doc:Trang Lab 05–06 VLearn (CP4)",
+      "pass": true,
+      "fail_reasons": [],
+      "trace_id": "505ca23fcd26",
+      "injection": false,
+      "got": [
+        {
+          "item": "hackathon_checkpoint",
+          "relation": "UPDATE",
+          "related": [
+            "TB-06"
+          ],
+          "labs": [
+            5,
+            6
+          ],
+          "deadlines": [
+            {
+              "label": "CP4",
+              "due_at": "2026-09-17T21:00"
+            }
+          ],
+          "recurring": null,
+          "guards": []
+        }
+      ]
+    }
+  ]
+}
