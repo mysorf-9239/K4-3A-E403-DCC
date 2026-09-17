@@ -4,3 +4,9 @@
 __pycache__/
 .env
 node_modules/
+.venv/
+codebase/data/runtime/
+codebase/data/runtime_stash_eval/
+*.lock
+.ruff_cache/
+.pytest_cache/
