@@ -40,7 +40,7 @@ _CACHE: dict[str, tuple[float, Decision]] = {}
 #: System prompt (sửa trong file .md để dễ đọc/diff; nạp một lần khi import).
 SYSTEM_PROMPT = (Path(__file__).parent / "prompts" / "decide_system.md").read_text(encoding="utf-8").strip()
 
-_PROMPT_KEYS = ["id", "kind", "origin", "item", "labs", "scope", "title", "published", "source", "status",
+_PROMPT_KEYS = ["id", "kind", "origin", "item", "labs", "classes", "scope", "title", "published", "source", "status",
                 "supersedes", "superseded_by", "overrides", "deadline_keys", "who", "where", "how", "deadline",
                 "consequence"]
 
@@ -154,7 +154,16 @@ def _resolve_sources(decision: str, item: str | None, lab: int | None, valid: li
     if primary.get("labs") and lab is not None and lab not in primary["labs"]:
         guards.append("source_lab_mismatch->NOT_FOUND")
         return "NOT_FOUND", []
-    conflicts = [c for c in registry.find_conflicts(primary, index)
+    klass = registry.class_from_text(question)
+    if not registry.applies_to_class(primary, klass):
+        others = [e for e in registry.related_active(item or primary["item"], [lab] if lab else None, index)
+                  if registry.applies_to_class(e, klass) and (lab is None or not e.get("labs") or lab in e["labs"])]
+        if not others:
+            guards.append("source_class_mismatch->NOT_FOUND")
+            return "NOT_FOUND", []
+        guards.append(f"class_scope:{primary['id']}->{others[0]['id']}")
+        primary = others[0]
+    conflicts = [c for c in registry.find_conflicts(primary, index, klass)
                  if lab is None or not index[c].get("labs") or lab in index[c]["labs"]]
     if conflicts:
         if decision != "CONFLICT":
@@ -170,13 +179,14 @@ def _guard(llm: dict[str, Any], hint: dict[str, Any] | None, question: str = "")
 
     Nhãn guard có thể xuất hiện: ``invalid_decision``, ``drop_unknown_source``, ``superseded_to_latest``,
     ``source_item_mismatch``, ``lab_missing->CLARIFY``, ``no_valid_source->NOT_FOUND``, ``overridden``,
-    ``source_lab_mismatch->NOT_FOUND``, ``conflict_detected->CONFLICT``, ``no_real_conflict->FOUND``,
+    ``source_lab_mismatch->NOT_FOUND``, ``class_scope``, ``source_class_mismatch->NOT_FOUND``,
+    ``conflict_detected->CONFLICT``, ``no_real_conflict->FOUND``, ``hint_answers_clarify->FOUND``,
     ``injection_not_queued->OUT_OF_SCOPE``.
 
     Args:
         llm: Dict JSON do LLM trả về.
         hint: Lựa chọn học viên đã bấm.
-        question: Câu hỏi gốc (để nhận ra mốc như "CP3" bị ghi đè).
+        question: Câu hỏi gốc (để nhận ra mốc như "CP3" bị ghi đè và lớp được nhắc như "lớp 3B").
 
     Returns:
         Quyết định cuối và danh sách nhãn guard đã áp dụng.
@@ -186,6 +196,10 @@ def _guard(llm: dict[str, Any], hint: dict[str, Any] | None, question: str = "")
     decision, item, lab = _read_llm(llm, hint, guards)
     valid: list[str] = []
     injection = bool(llm.get("injection_detected"))
+    if decision == "CLARIFY" and hint and hint.get("item") in config.ITEMS and not (item == "lab" and lab is None):
+        guards.append("hint_answers_clarify->FOUND")
+        decision = "FOUND"
+        llm = {**llm, "source_ids": [e["id"] for e in registry.related_active(item, [lab] if lab else None, index)]}
     if decision in ("FOUND", "CONFLICT"):
         item, valid = _match_item(item, lab, _valid_sources(llm, index, guards), index, guards)
         decision, valid = _resolve_sources(decision, item, lab, valid, question, index, guards)

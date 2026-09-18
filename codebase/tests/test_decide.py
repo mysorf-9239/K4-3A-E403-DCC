@@ -44,6 +44,20 @@ def test_unknown_source_without_item_match_is_not_found() -> None:
     assert final["decision"] == "NOT_FOUND" and final["source_ids"] == []
 
 
+def test_menu_choice_is_not_asked_again() -> None:
+    """Học viên đã chọn "Mentor duty" trong menu mà LLM vẫn trả CLARIFY → dùng lựa chọn, trả FOUND TB-05."""
+    final, guards = guard({"decision": "CLARIFY", "item": None, "missing": "item"}, {"item": "mentor_duty"},
+                          "cho mình hỏi hạn nộp bài là khi nào?")
+    assert final["decision"] == "FOUND" and final["source_ids"] == ["TB-05"]
+    assert guards[0] == "hint_answers_clarify->FOUND"
+
+
+def test_menu_choice_lab_without_number_still_asks_lab() -> None:
+    """Chọn "Bài lab" nhưng chưa có số lab → vẫn hỏi số lab."""
+    final, _ = guard({"decision": "CLARIFY", "item": None, "missing": "item"}, {"item": "lab"}, "hạn nộp là khi nào?")
+    assert final["decision"] == "CLARIFY" and final["missing"] == "lab"
+
+
 def test_lab_without_number_asks_again() -> None:
     """Bài lab mà không biết số → CLARIFY thiếu lab."""
     final, _ = guard({"decision": "FOUND", "item": "lab", "source_ids": ["TB-03"]})
@@ -55,6 +69,21 @@ def test_conflict_forced_even_if_llm_says_found() -> None:
     final, guards = guard({"decision": "FOUND", "item": "lab", "lab": 3, "source_ids": ["TB-07"]})
     assert final["decision"] == "CONFLICT" and set(final["source_ids"]) == {"TB-03", "TB-07"}
     assert "conflict_detected->CONFLICT" in guards
+
+
+def test_other_class_uses_general_source_without_conflict() -> None:
+    """Held-out HO14: TB-07 chỉ cho lớp 3A → hỏi lớp 3B thì FOUND TB-03, không báo mâu thuẫn."""
+    final, guards = guard({"decision": "FOUND", "item": "lab", "lab": 3, "source_ids": ["TB-07"]}, None,
+                          "Lab 3 lớp 3B hạn nộp khi nào?")
+    assert final["decision"] == "FOUND" and final["source_ids"] == ["TB-03"]
+    assert guards == ["class_scope:TB-07->TB-03"]
+
+
+def test_same_class_still_conflicts() -> None:
+    """Hỏi lớp 3A hoặc không nêu lớp → vẫn CONFLICT TB-03/TB-07."""
+    for q in ("Lab 3 lớp 3A hạn nộp khi nào?", "lab 3 nộp khi nào vậy"):
+        final, _ = guard({"decision": "FOUND", "item": "lab", "lab": 3, "source_ids": ["TB-03"]}, None, q)
+        assert final["decision"] == "CONFLICT" and set(final["source_ids"]) == {"TB-03", "TB-07"}
 
 
 def test_lab_outside_source_scope_is_not_found() -> None:

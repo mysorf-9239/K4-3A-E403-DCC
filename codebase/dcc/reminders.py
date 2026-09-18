@@ -4,9 +4,11 @@ Thiết kế theo câu hỏi của đề B2 "chủ động đến đâu thì th�
 ký gồm người dùng, hạng mục và số phút nhắc trước hạn; tắt bằng ``/remind-off``.
 
 Hạn lấy từ ``registry.upcoming_deadlines`` (mục đang hiệu lực, có mốc tuyệt đối hoặc hạn lặp mỗi ngày, đã bỏ mốc bị
-ghi đè). Mỗi cặp (người dùng, mục nguồn, mốc hạn) chỉ nhắc một lần.
+ghi đè). Mỗi cặp (người dùng, mục nguồn, mốc hạn) chỉ nhắc một lần. Một lời nhắc chỉ được đánh dấu ``sent`` sau khi bot
+gửi DM thành công; gửi lỗi (ví dụ học viên chặn DM) thì ghi vào ``failed`` để không thử lại liên tục và không bị tính
+là đã nhắc.
 
-Dữ liệu: ``data/runtime/reminders.json`` = ``{"subs": [...], "sent": [...]}`` (không commit).
+Dữ liệu: ``data/runtime/reminders.json`` = ``{"subs": [...], "sent": [...], "failed": [...]}`` (không commit).
 """
 from datetime import datetime
 from typing import Any
@@ -20,12 +22,15 @@ MAX_SENT_KEYS = 2000
 
 def _load() -> dict[str, list[Any]]:
     """Đọc dữ liệu nhắc hạn."""
-    return read_json(REMINDER_FILE, {"subs": [], "sent": []})
+    data = read_json(REMINDER_FILE, {"subs": [], "sent": []})
+    data.setdefault("failed", [])
+    return data
 
 
 def _save(data: dict[str, list[Any]]) -> None:
     """Ghi dữ liệu nhắc hạn, chỉ giữ ``MAX_SENT_KEYS`` khoá đã gửi gần nhất."""
     data["sent"] = data["sent"][-MAX_SENT_KEYS:]
+    data["failed"] = data["failed"][-MAX_SENT_KEYS:]
     write_json(REMINDER_FILE, data)
 
 
@@ -58,29 +63,38 @@ def list_subs(user_id: int | str) -> list[dict[str, Any]]:
 
 
 def due_notifications(now: datetime | None = None) -> list[dict[str, Any]]:
-    """Tính các lời nhắc cần gửi ngay và đánh dấu đã gửi.
+    """Tính các lời nhắc cần gửi ngay (chưa gửi thành công và chưa gửi lỗi). Không đánh dấu gì.
 
     Args:
         now: Thời điểm tính (mặc định ``config.now()``).
 
     Returns:
-        ``{"user_id", "item", "deadline", "minutes_left"}`` với ``deadline`` là một phần tử của
-        ``registry.upcoming_deadlines``.
+        ``{"key", "user_id", "item", "deadline", "minutes_left"}`` với ``deadline`` là một phần tử của
+        ``registry.upcoming_deadlines``; gửi xong gọi ``mark(key, ok)``.
     """
     now = now or config.now()
+    data = _load()
+    done = set(data["sent"]) | set(data["failed"])
     out = []
+    for sub in data["subs"]:
+        for deadline in registry.upcoming_deadlines(now, hours=sub["lead_minutes"] / 60, item=sub["item"]):
+            key = f"{sub['user_id']}|{deadline['entry_id']}|{deadline['due_at']:%Y-%m-%dT%H:%M}"
+            if key in done:
+                continue
+            done.add(key)
+            out.append({"key": key, "user_id": sub["user_id"], "item": sub["item"], "deadline": deadline,
+                        "minutes_left": int((deadline["due_at"] - now).total_seconds() // 60)})
+    return out
+
+
+def mark(key: str, ok: bool) -> None:
+    """Ghi kết quả gửi một lời nhắc: ``sent`` nếu gửi được, ``failed`` nếu không."""
     with locked(REMINDER_FILE):
         data = _load()
-        sent = set(data["sent"])
-        for sub in data["subs"]:
-            for deadline in registry.upcoming_deadlines(now, hours=sub["lead_minutes"] / 60, item=sub["item"]):
-                key = f"{sub['user_id']}|{deadline['entry_id']}|{deadline['due_at']:%Y-%m-%dT%H:%M}"
-                if key in sent:
-                    continue
-                sent.add(key)
-                data["sent"].append(key)
-                out.append({"user_id": sub["user_id"], "item": sub["item"], "deadline": deadline,
-                            "minutes_left": int((deadline["due_at"] - now).total_seconds() // 60)})
-        if out:
-            _save(data)
-    return out
+        data["sent" if ok else "failed"].append(key)
+        _save(data)
+
+
+def failed_count() -> int:
+    """Số lời nhắc không gửi được (hiển thị trong bản tin TA)."""
+    return len(_load()["failed"])

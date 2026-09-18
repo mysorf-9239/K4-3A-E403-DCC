@@ -2,6 +2,55 @@
 
 Mỗi lượt mới được thêm lên đầu. Trace đầy đủ (prompt + raw response) theo `trace_id` trong `codebase/logs/decisions.jsonl`.
 
+## Lượt 20260917-222753 · gemini · gemini-3.5-flash-lite
+
+**Đạt 27/27 = 100.0%** · hỏi lại thừa 0/15 · trả lời khi không được trả lời 0/9 · lỗi gọi LLM 0 · ca có guard can thiệp 1
+
+| Nhóm | Đạt |
+|---|---|
+| common | 9/9 |
+| edge | 3/3 |
+| hard_1_source | 4/4 |
+| hard_2_ambiguous | 3/3 |
+| hard_3_scope | 4/4 |
+| hard_4_domain | 4/4 |
+
+| Case | Nhóm | Nguồn câu hỏi | Kỳ vọng | Kết quả | Nguồn trả về | Guard | Đạt | Lý do trượt | trace |
+|---|---|---|---|---|---|---|---|---|---|
+| C01 | common | chatlog:M81080 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `85eeb068dd1a` |
+| C02 | common | chatlog:M79664 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `1d48782e0f96` |
+| C03 | common | chatlog:M57734 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `29a24de2f1d4` |
+| C04 | common | chatlog:M35080 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `5aba837b5f7a` |
+| C05 | common | chatlog:M40490 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `9bd75765f880` |
+| C06 | common | chatlog:M91752 | FOUND TB-04 | FOUND | TB-04 | — | ✅ | — | `d09e3d332d73` |
+| C07 | common | chatlog:M45316 | FOUND TB-05 | FOUND | TB-05 | — | ✅ | — | `ad5150c306a0` |
+| C08 | common | synthetic | FOUND TB-03 | FOUND | TB-03 | — | ✅ | — | `0421ebad022c` |
+| C09 | common | synthetic | FOUND TB-06 | FOUND | TB-06 | — | ✅ | — | `d0cbdbb246b1` |
+| H1a | hard_1_source | chatlog:M33002 | NOT_FOUND  | NOT_FOUND | — | — | ✅ | — | `0acfb706787d` |
+| H1b | hard_1_source | chatlog:M97148 | NOT_FOUND/OUT_OF_SCOPE  | NOT_FOUND | — | — | ✅ | — | `3b2a5ce22d46` |
+| H1c | hard_1_source | synthetic | NOT_FOUND  | NOT_FOUND | — | — | ✅ | — | `20f518aa74ce` |
+| H1d | hard_1_source | chatlog:M94849 | NOT_FOUND/FOUND  | FOUND | TB-02 | — | ✅ | — | `6b83840c5041` |
+| H2a | hard_2_ambiguous | synthetic | CLARIFY  | CLARIFY | — | — | ✅ | — | `dc5b72bed6b6` |
+| H2b | hard_2_ambiguous | synthetic | CLARIFY  | CLARIFY | — | — | ✅ | — | `97ad23895c04` |
+| H2c | hard_2_ambiguous | synthetic | CLARIFY  | CLARIFY | — | — | ✅ | — | `3573401b70eb` |
+| H3a | hard_3_scope | chatlog:M88027 | OUT_OF_SCOPE  | OUT_OF_SCOPE | — | — | ✅ | — | `3318e32fd54a` |
+| H3b | hard_3_scope | chatlog:M13974 | OUT_OF_SCOPE  | OUT_OF_SCOPE | — | — | ✅ | — | `30f6d64e74c7` |
+| H3c | hard_3_scope | chatlog:M02078 | OUT_OF_SCOPE  | OUT_OF_SCOPE | — | — | ✅ | — | `457c72819326` |
+| H3d | hard_3_scope | synthetic | OUT_OF_SCOPE/FOUND  | OUT_OF_SCOPE | — | — | ✅ | — | `a54a1efd68f5` |
+| H4a | hard_4_domain | chatlog:M82163 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `049b9b3ebd67` |
+| H4b | hard_4_domain | chatlog:M98666 | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `5700369a7b40` |
+| H4c | hard_4_domain | synthetic | CONFLICT TB-03,TB-07 | CONFLICT | TB-07,TB-03 | conflict_detected->CONFLICT | ✅ | — | `8d49db67eb94` |
+| H4d | hard_4_domain | synthetic | FOUND TB-04 | FOUND | TB-04 | — | ✅ | — | `0e1d6d38c4de` |
+| E01 | edge | synthetic | FOUND TB-03 | FOUND | TB-03 | — | ✅ | — | `f57415837b9f` |
+| E02 | edge | synthetic | FOUND TB-02 | FOUND | TB-02 | — | ✅ | — | `eb9297f2853b` |
+| E03 | edge | synthetic | FOUND TB-05 | FOUND | TB-05 | — | ✅ | — | `1bf69838820d` |
+
+Ghi chú lượt 5 (17/09 22:27). Chạy sau khi sửa 3 lỗi từ held-out lượt 1: thêm trường `classes` cho mục nguồn (TB-07 chỉ áp dụng lớp 3A) và guard bỏ mục không áp dụng cho lớp được hỏi; thêm luật prompt 7–9 (mục theo lớp, chi tiết nguồn không nêu thì NOT_FOUND, câu hỏi quy định nộp đi kèm lỗi code). Golden set và luật chấm không đổi.
+
+- 27/27, không lỗi gọi LLM, không case nào đổi kết quả so với lượt 4 → các sửa đổi không làm hỏng golden.
+- H4c vẫn cần guard `conflict_detected` (LLM chọn riêng TB-07 lần thứ 5).
+- Trung vị độ trễ 1451 ms.
+
 ## Lượt 20260917-104714 · gemini · gemini-3.5-flash-lite
 
 **Đạt 27/27 = 100.0%** · hỏi lại thừa 0/15 · trả lời khi không được trả lời 0/9 · lỗi gọi LLM 0 · ca có guard can thiệp 1

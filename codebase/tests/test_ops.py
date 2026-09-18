@@ -22,10 +22,19 @@ def test_reminder_sent_once_per_deadline() -> None:
     """Nhắc CP3 khi còn trong khoảng 120 phút, chỉ một lần."""
     reminders.subscribe(1, "hackathon_checkpoint", 120)
     first = reminders.due_notifications(now=datetime(2026, 9, 17, 14, 30))
-    again = reminders.due_notifications(now=datetime(2026, 9, 17, 14, 45))
     assert [n["deadline"]["label"] for n in first] == ["CP3 · Video 30s + số đo"]
-    assert again == []
+    reminders.mark(first[0]["key"], True)
+    assert reminders.due_notifications(now=datetime(2026, 9, 17, 14, 45)) == []
     assert reminders.unsubscribe(1) == 1
+
+
+def test_reminder_not_counted_as_sent_when_dm_fails() -> None:
+    """DM bị chặn: ghi failed, không tính đã nhắc, không thử lại mỗi phút."""
+    reminders.subscribe(2, "hackathon_checkpoint", 120)
+    notice = reminders.due_notifications(now=datetime(2026, 9, 17, 14, 30))[0]
+    reminders.mark(notice["key"], False)
+    assert reminders.due_notifications(now=datetime(2026, 9, 17, 14, 45)) == []
+    assert reminders.failed_count() == 1 and notice["key"] not in reminders._load()["sent"]
 
 
 def test_digest_counts_from_logs() -> None:
