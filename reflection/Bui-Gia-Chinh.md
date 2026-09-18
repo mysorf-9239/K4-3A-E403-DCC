@@ -6,7 +6,7 @@ AI Engineer nhóm DCC · 2A202602693 · lớp 3A, phòng E403, cụm C3
 
 Tôi làm phần lõi trong [`codebase/dcc/`](../codebase/dcc/) — chỗ quyết định xem một câu hỏi sẽ được trả lời thế nào.
 
-Cụ thể là bốn file. [`decide.py`](../codebase/dcc/decide.py) chứa prompt quyết định, phần đọc JSON model trả về, và hàm
+Cụ thể là bốn file. [`decide.py`](../codebase/dcc/decide.py) chứa prompt quyết định, phần đọc JSON mà model trả về, và hàm
 `_guard` kiểm lại kết quả bằng chính sổ nguồn. [`registry.py`](../codebase/dcc/registry.py) là sổ nguồn có phiên bản:
 một mục có thể thay thế mục cũ (`supersedes`), ghi đè cục bộ theo lab hoặc theo mốc (`overrides`), giới hạn phạm vi lớp
 (`classes`), và hàm `find_conflicts` tìm các mục còn hiệu lực nói khác nhau về cùng một thứ. [`ingest.py`](../codebase/dcc/ingest.py)
@@ -21,7 +21,7 @@ bị thay thế, ép CONFLICT khi sổ thật sự có hai mốc chỏi nhau, h�
 
 ## AI đã hỗ trợ thế nào
 
-Tôi dùng AI để viết khung file và viết docstring, và nhất là để **đọc ngược code của chính mình**. Sáng 17/09 tôi nhờ rà
+Tôi dùng AI để viết khung file và docstring, và nhất là để **đọc ngược code của chính mình**. Sáng 17/09 tôi nhờ rà
 lại toàn bộ `registry.py` với câu hỏi "chỗ nào thay đổi một mục có thể phá mục khác", và phát hiện lỗi mà tôi chắc chắn
 sẽ không tự nhìn ra: khi TA gia hạn CP3, hàm ghi đè của tôi ghi lại cả cụm mốc checkpoint, làm mất luôn CP4 và CP5 khỏi
 sổ. Một lệnh gia hạn tưởng là vô hại lại xoá hai hạn khác.
