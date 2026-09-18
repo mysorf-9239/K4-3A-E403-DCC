@@ -622,7 +622,9 @@ async def reminder_loop() -> None:
             user = client.get_user(user_id) or await client.fetch_user(user_id)
             await user.send(embed=reminder_embed(notice))
         except discord.HTTPException:
+            await asyncio.to_thread(reminders.mark, notice["key"], False)
             continue
+        await asyncio.to_thread(reminders.mark, notice["key"], True)
 
 
 @reminder_loop.before_loop

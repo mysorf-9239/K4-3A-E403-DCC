@@ -39,7 +39,7 @@ Sơ đồ kiến trúc, luồng và quyết định thiết kế: [ARCHITECTURE.
 | `nopdung/render.py`                           | Thẻ trả lời dùng chung Discord/web                                                                                             | Code                       |
 | `nopdung/storage.py`                          | Đọc/ghi JSON có khoá file + ghi nguyên tử (bot và web chạy cùng lúc)                                                           | Code                       |
 | `nopdung/prompts/*.md`                        | System prompt của quyết định trung tâm và nạp nguồn                                                                            | Prompt                     |
-| `tests/`                                      | 51 test pytest với LLM giả (không tốn quota)                                                                                   | Test                       |
+| `tests/`                                      | 56 test pytest với LLM giả (không tốn quota)                                                                                   | Test                       |
 | `bot/discord_bot.py`                          | Bot Discord (server test)                                                                                                      | Thật                       |
 | `web/app.py`, `web/index.html`                | Web dự phòng khi pitch: tab Học viên, tab TA (hàng chờ, nạp thông báo, bản tin)                                                | Thật                       |
 | `data/registry.json`                          | Sổ nguồn gốc                                                                                                                   | Fixture (public + giả lập) |
@@ -63,7 +63,7 @@ Sơ đồ kiến trúc, luồng và quyết định thiết kế: [ARCHITECTURE.
 ```bash
 cd codebase
 uv pip install -p .venv/bin/python -r requirements-dev.txt
-.venv/bin/python -m pytest -q tests          # 51 test, LLM giả
+.venv/bin/python -m pytest -q tests          # 56 test, LLM giả
 .venv/bin/ruff check . ../eval --config ruff.toml
 ```
 

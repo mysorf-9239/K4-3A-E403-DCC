@@ -12,7 +12,8 @@ Sổ nguồn gồm hai lớp:
 Mỗi mục (entry) là một dict với các khoá chính:
     id: ``TB-xx`` (sổ gốc), ``SRC-xx`` (nạp từ thông báo), ``TA-xx`` (TA trả lời hàng chờ).
     kind: ``official`` | ``ta_answer``; origin: ``public_doc`` | ``simulated`` | ``ingested`` | ``ta``.
-    item: hạng mục trong ``config.ITEMS``; labs: (tuỳ chọn) danh sách số lab áp dụng.
+    item: hạng mục trong ``config.ITEMS``; labs: (tuỳ chọn) danh sách số lab áp dụng;
+    classes: (tuỳ chọn) danh sách lớp áp dụng, ví dụ ``["3A"]`` — không khai nghĩa là mọi lớp.
     status: ``active`` | ``superseded``; supersedes / superseded_by: quan hệ phiên bản.
     overrides: (tuỳ chọn) mã các mục bị mục này ghi đè **một phần** — theo lab (``labs``) hoặc theo mốc
         (``deadline_keys``, ví dụ chỉ đổi CP3 trong lịch CP1–CP5).
@@ -20,8 +21,8 @@ Mỗi mục (entry) là một dict với các khoá chính:
     source, url, published: nguồn gốc để học viên tự kiểm tra.
     deadlines: (tuỳ chọn) ``[{"label", "due_at": "YYYY-MM-DDTHH:MM"}]``; recurring_daily_close: ``"HH:MM"``.
 
-Quy ước "mâu thuẫn": hai mục ``active`` cùng hạng mục, phạm vi lab giao nhau, ``deadline`` khác nhau và
-không mục nào thay thế hay ghi đè mục nào.
+Quy ước "mâu thuẫn": hai mục ``active`` cùng hạng mục, phạm vi lab giao nhau, phạm vi lớp giao nhau, ``deadline``
+khác nhau và không mục nào thay thế hay ghi đè mục nào.
 """
 import hashlib
 import json
@@ -89,6 +90,25 @@ def labs_overlap(a: Entry, b: Entry) -> bool:
     return bool(set(la) & set(lb))
 
 
+def classes_overlap(a: Entry, b: Entry) -> bool:
+    """Hai mục có phạm vi lớp giao nhau không. Mục không khai ``classes`` coi như áp dụng mọi lớp."""
+    ca, cb = a.get("classes"), b.get("classes")
+    if not ca or not cb:
+        return True
+    return bool(set(ca) & set(cb))
+
+
+def applies_to_class(entry: Entry, klass: str | None) -> bool:
+    """Mục có áp dụng cho lớp ``klass`` không (``None`` = câu hỏi không nêu lớp)."""
+    return not klass or not entry.get("classes") or klass in entry["classes"]
+
+
+def class_from_text(text: str) -> str | None:
+    """Lấy mã lớp được nhắc trong câu hỏi, ví dụ "Lab 3 lớp 3B" → ``"3B"``; không có thì ``None``."""
+    match = re.search(r"\b(?:lop|class)\s*(\d[a-z])\b", config.strip_accents(text or ""))
+    return match.group(1).upper() if match else None
+
+
 def related_active(item: str, labs: list[int] | None = None, index: dict[str, Entry] | None = None,
                    exclude: str | None = None) -> list[Entry]:
     """Các mục ``active`` cùng hạng mục và giao phạm vi lab (ứng viên so trùng / cập nhật / mâu thuẫn)."""
@@ -105,11 +125,16 @@ def _linked(a: Entry, b: Entry) -> bool:
     return a["id"] in b.get("overrides", []) or b["id"] in a.get("overrides", [])
 
 
-def find_conflicts(entry: Entry, index: dict[str, Entry] | None = None) -> list[str]:
-    """Mã các mục ``active`` khác cùng hạng mục, giao phạm vi lab, khác ``deadline`` và không liên kết với ``entry``."""
+def find_conflicts(entry: Entry, index: dict[str, Entry] | None = None, klass: str | None = None) -> list[str]:
+    """Mã các mục ``active`` khác mâu thuẫn với ``entry``.
+
+    Mâu thuẫn khi: cùng hạng mục, giao phạm vi lab và lớp, khác ``deadline``, không liên kết thay thế/ghi đè. Nếu
+    câu hỏi nêu lớp (``klass``), bỏ các mục không áp dụng cho lớp đó.
+    """
     index = index or by_id()
     return [o["id"] for o in related_active(entry["item"], entry.get("labs"), index, exclude=entry["id"])
-            if not _linked(entry, o) and o.get("deadline") != entry.get("deadline")]
+            if not _linked(entry, o) and o.get("deadline") != entry.get("deadline")
+            and classes_overlap(entry, o) and applies_to_class(o, klass)]
 
 
 def deadline_key(label: str) -> str:
